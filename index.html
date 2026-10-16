@@ -1,0 +1,869 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tử Vi Đẩu Số — Lập và luận lá số</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;0,800;1,400&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1ECF4; --surface:#FFFDF8; --surface2:#F7F2EA; --ink:#241B33; --muted:#6B6178; --line:#D9CFE1; --line2:#C7B8D3;
+  --accent:#5B2A86; --accent-soft:#EDE3F5; --seal:#B0302A; --gold:#9A7218; --good:#2C6A38; --bad:#A3302A; --good-bg:#E5F0E3; --bad-bg:#F6E1DE;
+  --kim:#6E6E78; --moc:#2C7A3C; --thuy:#1F4E8C; --hoa:#B0302A; --tho:#8A5A14;
+  --serif:"Alegreya",Georgia,"Times New Roman",serif; --sans:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  color-scheme:light;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#130E1B; --surface:#1D1628; --surface2:#241C31; --ink:#EEE8F4; --muted:#A99FB6; --line:#362C46; --line2:#4A3D5D;
+  --accent:#C09AE6; --accent-soft:#2E2340; --seal:#E36A5E; --gold:#D9B25A; --good:#83C48F; --bad:#EF8378; --good-bg:#1E3324; --bad-bg:#3A1F1E;
+  --kim:#C9C9D2; --moc:#7FC48C; --thuy:#86ADE6; --hoa:#EF8378; --tho:#DDAA5E; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#130E1B; --surface:#1D1628; --surface2:#241C31; --ink:#EEE8F4; --muted:#A99FB6; --line:#362C46; --line2:#4A3D5D;
+  --accent:#C09AE6; --accent-soft:#2E2340; --seal:#E36A5E; --gold:#D9B25A; --good:#83C48F; --bad:#EF8378; --good-bg:#1E3324; --bad-bg:#3A1F1E;
+  --kim:#C9C9D2; --moc:#7FC48C; --thuy:#86ADE6; --hoa:#EF8378; --tho:#DDAA5E; color-scheme:dark;}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1280px;margin:0 auto;padding:28px 20px 64px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button,input,select{font:inherit;color:inherit}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:700;line-height:1.2;margin:0}
+
+/* masthead */
+.mast{display:flex;align-items:center;gap:16px;margin-bottom:26px}
+.mast svg{flex:none}
+.mast h1{font-size:30px;letter-spacing:.01em}
+.mast p{margin:2px 0 0;color:var(--muted);font-size:14px}
+
+/* form */
+.intake{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 22px 18px;display:grid;gap:16px 18px;grid-template-columns:repeat(12,1fr)}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0}
+.f label,.f .lb{font-size:13px;color:var(--muted);font-weight:500}
+.f input,.f select{background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:9px 10px;min-width:0;width:100%}
+.f input:focus,.f select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.seg{display:inline-flex;background:var(--surface2);border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px}
+.seg{position:relative}.seg input{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none}
+[hidden]{display:none!important}
+.seg label{padding:6px 14px;border-radius:7px;cursor:pointer;color:var(--ink);font-size:14px}
+.seg input:checked+label{background:var(--accent);color:var(--surface)}
+.seg input:focus-visible+label{outline:2px solid var(--accent);outline-offset:1px}
+.c12{grid-column:span 12}.c6{grid-column:span 6}.c4{grid-column:span 4}.c3{grid-column:span 3}.c2{grid-column:span 2}
+.row3{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chk{display:flex;align-items:center;gap:8px;font-size:14px;margin-top:4px}
+.actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.btn{background:var(--accent);color:var(--surface);border:0;border-radius:9px;padding:11px 20px;font-weight:600;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line2)}
+.err{color:var(--bad);font-size:14px}
+.hint{color:var(--muted);font-size:13px}
+@media (max-width:860px){.c6,.c4,.c3{grid-column:span 12}.c2{grid-column:span 6}}
+
+/* result */
+#result{margin-top:28px}
+.layout{display:grid;grid-template-columns:minmax(0,760px) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:1180px){.layout{grid-template-columns:minmax(0,1fr)}}
+.layout>*{min-width:0}
+.chart-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:14px}
+.chart{position:relative;min-width:680px;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(168px,auto);gap:0;background:var(--surface);border:1.5px solid var(--line2);border-radius:14px;overflow:hidden}
+.chart svg.lines{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+.cell{position:relative;z-index:2;background:var(--surface);border:1px solid var(--line);padding:7px 8px 6px;cursor:pointer;display:flex;flex-direction:column;gap:3px;text-align:left;font-size:11.5px;line-height:1.35;transition:background .15s}
+.cell:hover{background:var(--surface2)}
+.cell.tp{background:var(--accent-soft)}
+.cell.sel{box-shadow:inset 0 0 0 2px var(--accent);background:var(--accent-soft)}
+.c-top{display:flex;justify-content:space-between;align-items:center;gap:4px;color:var(--muted);font-size:11px}
+.c-dh{font-family:var(--serif);font-weight:700;font-size:14px;color:var(--ink)}
+.c-name{font-family:var(--serif);font-weight:800;font-size:15px;display:flex;align-items:center;gap:6px}
+.c-name .than{font-family:var(--sans);font-size:10px;font-weight:600;border:1px solid var(--gold);color:var(--gold);border-radius:4px;padding:0 4px}
+.cell.menh .c-name{color:var(--seal)}
+.c-score{margin-left:auto;font-family:var(--sans);font-size:10.5px;font-weight:600;border-radius:999px;padding:0 6px}
+.c-chinh{display:flex;flex-wrap:wrap;gap:0 8px;font-family:var(--serif);font-weight:700;font-size:14px;margin:1px 0}
+.c-chinh i{font-style:normal;font-family:var(--sans);font-weight:500;font-size:10px;opacity:.85}
+.c-vcd{color:var(--muted);font-style:italic;font-family:var(--serif);font-size:13px}
+.el-Kim{color:var(--kim)}.el-Mộc{color:var(--moc)}.el-Thủy{color:var(--thuy)}.el-Hỏa{color:var(--hoa)}.el-Thổ{color:var(--tho)}
+.c-phu{display:grid;grid-template-columns:1fr 1fr;gap:0 6px;flex:1}
+.c-phu .g{color:var(--good)}.c-phu .b{color:var(--bad)}.c-phu .n{color:var(--muted)}
+.c-phu span{display:block}
+.c-phu .hoa{font-weight:700}
+.c-foot{display:flex;justify-content:space-between;color:var(--muted);font-size:10.5px;border-top:1px dashed var(--line);padding-top:3px;margin-top:2px}
+.tt{position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;padding:0 6px;border-radius:4px;background:var(--ink);color:var(--surface)}
+.center{grid-row:2/4;grid-column:2/4;z-index:2;padding:18px 22px;display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;gap:10px;background:transparent;pointer-events:none}
+.center h2{font-size:24px}
+.center dl{display:grid;grid-template-columns:auto auto;gap:3px 14px;margin:0;font-size:13px;text-align:left}
+.center dt{color:var(--muted)}.center dd{margin:0;font-weight:500}
+.seal{display:inline-grid;place-items:center;width:46px;height:46px;border:2px solid var(--seal);color:var(--seal);border-radius:6px;font-family:"Noto Serif SC","Songti SC","SimSun",serif;font-size:17px;line-height:1.05;text-align:center;transform:rotate(-4deg)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 2px 0;color:var(--muted);font-size:12px}
+.legend b{font-weight:600}
+
+/* panel */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{flex:1;min-width:max-content;background:none;border:0;padding:13px 16px;cursor:pointer;color:var(--muted);font-weight:600;border-bottom:2px solid transparent}
+.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.tabpane{padding:20px 22px 24px}
+.tabpane[hidden]{display:none}
+.verdict-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.verdict-head h3{font-size:24px}
+.pill{display:inline-block;font-size:12.5px;font-weight:600;border-radius:999px;padding:2px 10px}
+.lv0{background:var(--good-bg);color:var(--good)}.lv1{background:var(--surface2);color:var(--gold);border:1px solid var(--line)}.lv2{background:var(--bad-bg);color:var(--bad)}
+.lines{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:10px}
+.lines li{padding-left:14px;border-left:2px solid var(--line);font-size:14.5px}
+.final{margin-top:16px;padding:12px 14px;border-radius:10px;font-family:var(--serif);font-size:17px;line-height:1.45}
+.br{font-size:11.5px;font-weight:600;color:var(--muted)}
+.br-H{color:var(--bad)}.br-M,.br-V{color:var(--good)}
+.tag-good,.tag-bad{font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:5px;margin-right:4px}
+.tag-good{background:var(--good-bg);color:var(--good)}.tag-bad{background:var(--bad-bg);color:var(--bad)}
+.cungpick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.cungpick button{border:1px solid var(--line);background:var(--surface2);border-radius:8px;padding:5px 10px;font-size:13px;cursor:pointer}
+.cungpick button[aria-pressed="true"]{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+.bars{display:grid;gap:7px;margin:8px 0 4px}
+.bar{display:grid;grid-template-columns:92px 1fr 118px;align-items:center;gap:10px;font-size:13.5px;background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.bar .track{height:9px;background:var(--surface2);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.bar .track,.bar .fill{display:block}.bar .fill{height:100%;border-radius:99px}
+.bar .v{font-weight:600;font-size:12.5px;text-align:right}
+.items{display:grid;gap:10px;margin:10px 0 0;padding:0;list-style:none}
+.items li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;font-size:14.5px}
+.items li .pill{margin-top:2px;white-space:nowrap}
+h4.sec{font-size:18px;margin:22px 0 4px}
+h4.sec:first-child{margin-top:0}
+.lede{font-family:var(--serif);font-size:18px;line-height:1.5;margin:0 0 6px}
+.dh-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px;margin:10px 0 16px}
+.dh-row button{border:1px solid var(--line);background:var(--surface2);border-radius:9px;padding:6px 4px;cursor:pointer;text-align:center;font-size:12px;line-height:1.3}
+.dh-row button b{display:block;font-family:var(--serif);font-size:14px}
+.dh-row button.now{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.dh-row button[aria-pressed="true"]{background:var(--accent);color:var(--surface)}
+.yearbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 10px}
+.yearbar input{width:96px;background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+/* AI */
+.ai-out{font-family:var(--serif);font-size:16.5px;line-height:1.65;max-width:72ch}
+.ai-out h3{font-size:21px;margin:22px 0 6px;color:var(--accent)}
+.ai-out h4{font-size:17px;margin:16px 0 4px}
+.ai-out p{margin:0 0 10px}
+.ai-out ul{margin:0 0 10px;padding-left:20px}
+.ai-out li{margin:3px 0}
+.thinking{color:var(--muted);font-style:italic}
+.ask{display:flex;gap:8px;margin-top:18px}
+.ask input{flex:1;min-width:0;background:var(--surface2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+.qa{margin-top:16px;display:grid;gap:14px}
+.qa .q{font-weight:600;font-size:14px;color:var(--accent)}
+.note{font-size:12.5px;color:var(--muted);margin-top:18px}
+.disclaim{display:flex;gap:12px;align-items:flex-start;background:var(--surface2);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:12px 14px;margin:0 0 18px;font-size:14px;color:var(--ink)}
+.disclaim svg{flex:none;margin-top:2px}
+.disclaim p{margin:0}
+.donate{margin-top:32px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center}
+.donate img{width:200px;height:200px;object-fit:contain;background:#fff;border-radius:10px;padding:8px;border:1px solid var(--line)}
+.donate h3{font-size:22px;margin-bottom:6px}
+.donate p{margin:0 0 12px;max-width:60ch}
+.donate dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0 0 12px;font-size:14.5px}
+.donate dt{color:var(--muted)}.donate dd{margin:0;font-weight:600}
+@media (max-width:640px){.donate{grid-template-columns:1fr;justify-items:center;text-align:center}.donate dl{text-align:left}}
+footer.site{margin-top:28px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;line-height:1.6}
+footer.site p{margin:0 0 6px;max-width:90ch}
+.mtoggle{display:none}
+@media (max-width:640px){
+  body{font-size:14.5px}
+  .wrap{padding:16px 12px 48px}
+  .mast{gap:12px;margin-bottom:16px}.mast svg{width:38px;height:38px}
+  .mast h1{font-size:24px}.mast p{font-size:13px}
+  .disclaim{padding:10px 12px;font-size:13px}
+  .intake{padding:16px 14px;gap:14px;border-radius:12px}
+  .c2{grid-column:span 12}
+  .row3{grid-template-columns:.8fr 1.3fr 1fr}
+  .seg{display:flex}.seg label{flex:1;text-align:center;padding:8px 6px}
+  .f input,.f select{padding:11px 10px;font-size:16px}
+  .btn{padding:12px 18px;width:100%}
+  .actions{gap:10px}
+  #result{margin-top:20px}
+  .layout{gap:16px}
+  .mtoggle{display:block;margin:10px 0 0}
+  .chart:not(.full){min-width:0;grid-auto-rows:minmax(92px,auto);border-radius:12px}
+  .chart:not(.full) .cell{padding:5px 5px 4px;gap:1px;font-size:10px}
+  .chart:not(.full) .c-phu,.chart:not(.full) .c-foot,.chart:not(.full) .tt{display:none}
+  .chart:not(.full) .c-top{font-size:9.5px}
+  .chart:not(.full) .c-dh{font-size:11px}
+  .chart:not(.full) .c-name{font-size:12.5px;gap:3px;flex-wrap:wrap}
+  .chart:not(.full) .c-name .than{font-size:8.5px;padding:0 3px}
+  .chart:not(.full) .c-score{font-size:9.5px;padding:0 4px}
+  .chart:not(.full) .c-chinh{font-size:11px;flex-direction:column;gap:0;line-height:1.25}
+  .chart:not(.full) .c-chinh i{font-size:9px}
+  .chart:not(.full) .c-vcd{font-size:10.5px}
+  .chart:not(.full) .cell.tt-on{box-shadow:inset 0 -2px 0 var(--ink)}
+  .chart:not(.full) .center{padding:8px 6px;gap:5px}
+  .chart:not(.full) .center h2{font-size:15px}
+  .chart:not(.full) .center dl{font-size:10.5px;gap:1px 8px}
+  .chart:not(.full) .center .opt{display:none}
+  .chart:not(.full) .seal{width:32px;height:32px;font-size:12px}
+  .legend{font-size:11px;gap:4px 10px}
+  .tabpane{padding:16px 14px 20px}
+  .tabs button{padding:12px 12px;font-size:14px}
+  .verdict-head h3{font-size:21px}
+  .lede{font-size:16.5px}
+  .bar{grid-template-columns:74px 1fr 96px;gap:8px;font-size:12.5px}
+  .bar .v{font-size:11.5px}
+  .lines li{font-size:14px}
+  .items li{grid-template-columns:1fr;gap:4px;font-size:14px}
+  .items li .pill{justify-self:start}
+  .final{font-size:16px}
+  .dh-row{grid-template-columns:repeat(3,1fr)}
+  .yearbar .btn{width:auto}
+  .ai-out{font-size:15.5px}
+  .ai-out h3{font-size:19px}
+  .ask{flex-direction:column}.ask .btn{width:100%}
+  .cungpick button{padding:7px 10px}
+  .donate{padding:18px 14px}
+  .donate img{width:220px;height:220px}
+  .donate .btn{width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media print{.intake,.tabs,.ask,.mast p{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="21" fill="none" stroke="var(--accent)" stroke-width="1.5"/><path d="M23 6 L26.2 19.8 L40 23 L26.2 26.2 L23 40 L19.8 26.2 L6 23 L19.8 19.8 Z" fill="var(--accent)"/><circle cx="23" cy="23" r="3" fill="var(--surface)"/></svg>
+    <div><h1>Tử Vi Đẩu Số</h1><p>Lập lá số theo phái Việt Nam, luận từng cung theo đúng sao và độ sáng — tốt nói tốt, xấu nói xấu.</p></div>
+  </header>
+
+  <div class="disclaim" role="note"><svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="none" stroke="var(--gold)" stroke-width="1.6"/><rect x="9.1" y="8.5" width="1.8" height="6" rx=".9" fill="var(--gold)"/><circle cx="10" cy="5.8" r="1.1" fill="var(--gold)"/></svg><p><b>Nội dung chỉ mang tính tham khảo.</b> Lá số và lời luận dựa trên Tử Vi Đẩu Số, một môn huyền học truyền thống, không phải khoa học hay lời khuyên chuyên môn. Đừng dựa vào đây để quyết định về sức khỏe, tài chính, pháp lý hay hôn nhân; hãy hỏi bác sĩ, chuyên gia khi cần.</p></div>
+  <form class="intake" id="intake" novalidate>
+    <div class="f c6"><label for="fName">Họ và tên</label><input id="fName" autocomplete="name" placeholder="Nguyễn Văn A"></div>
+    <div class="f c3"><span class="lb">Giới tính</span><div class="seg" role="radiogroup"><input type="radio" name="g" id="gNam" value="nam" checked><label for="gNam">Nam</label><input type="radio" name="g" id="gNu" value="nu"><label for="gNu">Nữ</label></div></div>
+    <div class="f c3"><span class="lb">Loại lịch của ngày sinh</span><div class="seg" role="radiogroup"><input type="radio" name="cal" id="calD" value="duong" checked><label for="calD">Dương lịch</label><input type="radio" name="cal" id="calA" value="am"><label for="calA">Âm lịch</label></div></div>
+    <div class="f c6"><span class="lb">Ngày / tháng / năm sinh</span>
+      <div class="row3"><select id="fD" aria-label="Ngày"></select><select id="fM" aria-label="Tháng"></select><input id="fY" type="number" inputmode="numeric" min="1900" max="2100" placeholder="Năm" aria-label="Năm"></div>
+      <label class="chk" id="leapWrap" hidden><input type="checkbox" id="fLeap"> Tháng nhuận</label></div>
+    <div class="f c4"><span class="lb">Giờ sinh</span><div class="row2"><select id="fH" aria-label="Giờ"></select><select id="fMi" aria-label="Phút"></select></div><span class="hint" id="hourHint"></span></div>
+    <div class="f c2"><label for="fView">Năm xem hạn</label><input id="fView" type="number" min="1900" max="2150"></div>
+    <div class="c12 actions"><button class="btn" type="submit">Lập lá số</button><span class="err" id="err" role="alert"></span></div>
+  </form>
+
+  <section id="result" hidden>
+    <div class="layout">
+      <div>
+        <div class="chart-scroll"><div class="chart" id="chart"></div></div>
+        <button class="btn ghost mtoggle" type="button" id="fullToggle" aria-pressed="false">Xem lá số đầy đủ (vuốt ngang)</button>
+        <div class="legend"><span><b class="el-Kim">●</b> Kim</span><span><b class="el-Mộc">●</b> Mộc</span><span><b class="el-Thủy">●</b> Thủy</span><span><b class="el-Hỏa">●</b> Hỏa</span><span><b class="el-Thổ">●</b> Thổ</span><span>Cột trái: cát tinh · cột phải: sát/bại tinh</span><span>Số góc phải: tuổi bắt đầu đại hạn</span></div>
+      </div>
+      <div class="panel">
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="true" data-tab="tong">Tổng quan</button>
+          <button role="tab" aria-selected="false" data-tab="cung">Luận 12 cung</button>
+          <button role="tab" aria-selected="false" data-tab="han">Vận hạn</button>
+          <button role="tab" aria-selected="false" data-tab="ai">Thầy luận chi tiết</button>
+        </div>
+        <div class="tabpane" id="tab-tong"></div>
+        <div class="tabpane" id="tab-cung" hidden></div>
+        <div class="tabpane" id="tab-han" hidden></div>
+        <div class="tabpane" id="tab-ai" hidden></div>
+      </div>
+    </div>
+    <p class="note">Nội dung chỉ mang tính tham khảo. An sao theo Tử Vi Đẩu Số phái Việt Nam; một số sao phụ và độ sáng có khác biệt nhỏ giữa các trường phái. Điểm số là thang tham khảo do phần mềm tổng hợp từ sao tọa thủ và tam phương tứ chính.</p>
+  </section>
+  <section class="donate" id="donate" hidden aria-labelledby="donateTitle"></section>
+  <footer class="site">
+    <p><b>Lưu ý:</b> Mọi nội dung trên trang chỉ mang tính tham khảo, giải trí và tìm hiểu văn hóa truyền thống. Kết quả không có giá trị dự đoán chắc chắn và không thay thế tư vấn của bác sĩ, luật sư, chuyên gia tài chính hay tâm lý. Người dùng tự chịu trách nhiệm với quyết định của mình.</p>
+    <p>Trang không lưu thông tin ngày giờ sinh của bạn lên máy chủ; dữ liệu nhập chỉ được nhớ trên trình duyệt của bạn.</p>
+  </footer>
+</div>
+<script>
+/* ===== Âm lịch (thuật toán Hồ Ngọc Đức, múi giờ +7) ===== */
+const INT=Math.floor, TZ=7;
+const mod=(a,n)=>((a%n)+n)%n;
+function jdFromDate(dd,mm,yy){const a=INT((14-mm)/12),y=yy+4800-a,m=mm+12*a-3;let jd=dd+INT((153*m+2)/5)+365*y+INT(y/4)-INT(y/100)+INT(y/400)-32045;if(jd<2299161)jd=dd+INT((153*m+2)/5)+365*y+INT(y/4)-32083;return jd;}
+function jdToDate(jd){let a,b,c;if(jd>2299160){a=jd+32044;b=INT((4*a+3)/146097);c=a-INT((b*146097)/4);}else{b=0;c=jd+32082;}const d=INT((4*c+3)/1461),e=c-INT((1461*d)/4),m=INT((5*e+2)/153);return[e-INT((153*m+2)/5)+1,m+3-12*INT(m/10),b*100+d-4800+INT(m/10)];}
+function newMoon(k){const T=k/1236.85,T2=T*T,T3=T2*T,dr=Math.PI/180;let Jd1=2415020.75933+29.53058868*k+0.0001178*T2-0.000000155*T3;Jd1+=0.00033*Math.sin((166.56+132.87*T-0.009173*T2)*dr);const M=359.2242+29.10535608*k-0.0000333*T2-0.00000347*T3,Mpr=306.0253+385.81691806*k+0.0107306*T2+0.00001236*T3,F=21.2964+390.67050646*k-0.0016528*T2-0.00000239*T3;let C1=(0.1734-0.000393*T)*Math.sin(M*dr)+0.0021*Math.sin(2*dr*M);C1=C1-0.4068*Math.sin(Mpr*dr)+0.0161*Math.sin(dr*2*Mpr)-0.0004*Math.sin(dr*3*Mpr);C1=C1+0.0104*Math.sin(dr*2*F)-0.0051*Math.sin(dr*(M+Mpr))-0.0074*Math.sin(dr*(M-Mpr))+0.0004*Math.sin(dr*(2*F+M));C1=C1-0.0004*Math.sin(dr*(2*F-M))-0.0006*Math.sin(dr*(2*F+Mpr))+0.0010*Math.sin(dr*(2*F-Mpr))+0.0005*Math.sin(dr*(2*Mpr+M));const dt=T<-11?0.001+0.000839*T+0.0002261*T2-0.00000845*T3-0.000000081*T*T3:-0.000278+0.000265*T+0.000262*T2;return INT(Jd1+C1-dt+0.5+TZ/24);}
+function sunLong(jdn){const T=(jdn-2451545.5-TZ/24)/36525,T2=T*T,dr=Math.PI/180,M=357.52910+35999.05030*T-0.0001559*T2-0.00000048*T*T2,L0=280.46645+36000.76983*T+0.0003032*T2;let DL=(1.914600-0.004817*T-0.000014*T2)*Math.sin(dr*M);DL+=(0.019993-0.000101*T)*Math.sin(dr*2*M)+0.000290*Math.sin(dr*3*M);let L=(L0+DL)*dr;L-=Math.PI*2*INT(L/(Math.PI*2));return INT(L/Math.PI*6);}
+function month11(yy){const off=jdFromDate(31,12,yy)-2415021,k=INT(off/29.530588853);let nm=newMoon(k);if(sunLong(nm)>=9)nm=newMoon(k-1);return nm;}
+function leapOffset(a11){const k=INT((a11-2415021.076998695)/29.530588853+0.5);let last=0,i=1,arc=sunLong(newMoon(k+i));do{last=arc;i++;arc=sunLong(newMoon(k+i));}while(arc!=last&&i<14);return i-1;}
+function solar2lunar(dd,mm,yy){const day=jdFromDate(dd,mm,yy),k=INT((day-2415021.076998695)/29.530588853);let ms=newMoon(k+1);if(ms>day)ms=newMoon(k);let a11=month11(yy),b11=a11,ly;if(a11>=ms){ly=yy;a11=month11(yy-1);}else{ly=yy+1;b11=month11(yy+1);}const ld=day-ms+1,diff=INT((ms-a11)/29);let leap=0,lm=diff+11;if(b11-a11>365){const lo=leapOffset(a11);if(diff>=lo){lm=diff+10;if(diff==lo)leap=1;}}if(lm>12)lm-=12;if(lm>=11&&diff<4)ly-=1;return[ld,lm,ly,leap];}
+function lunar2jd(ld,lm,ly,leap){let a11,b11;if(lm<11){a11=month11(ly-1);b11=month11(ly);}else{a11=month11(ly);b11=month11(ly+1);}const k=INT(0.5+(a11-2415021.076998695)/29.530588853);let off=lm-11;if(off<0)off+=12;if(b11-a11>365){const lo=leapOffset(a11);let lpm=lo-2;if(lpm<0)lpm+=12;if(leap&&lm!=lpm)return null;else if(leap||off>=lo)off+=1;}else if(leap)return null;return newMoon(k+off)+ld-1;}
+
+/* ===== Hằng số ===== */
+const CAN=['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'];
+const CHI=['Tý','Sửu','Dần','Mão','Thìn','Tỵ','Ngọ','Mùi','Thân','Dậu','Tuất','Hợi'];
+const CUNG=['Mệnh','Phụ Mẫu','Phúc Đức','Điền Trạch','Quan Lộc','Nô Bộc','Thiên Di','Tật Ách','Tài Bạch','Tử Tức','Phu Thê','Huynh Đệ'];
+const NAPAM=[['Hải Trung Kim','Kim'],['Lư Trung Hỏa','Hỏa'],['Đại Lâm Mộc','Mộc'],['Lộ Bàng Thổ','Thổ'],['Kiếm Phong Kim','Kim'],['Sơn Đầu Hỏa','Hỏa'],['Giản Hạ Thủy','Thủy'],['Thành Đầu Thổ','Thổ'],['Bạch Lạp Kim','Kim'],['Dương Liễu Mộc','Mộc'],['Tuyền Trung Thủy','Thủy'],['Ốc Thượng Thổ','Thổ'],['Tích Lịch Hỏa','Hỏa'],['Tùng Bách Mộc','Mộc'],['Trường Lưu Thủy','Thủy'],['Sa Trung Kim','Kim'],['Sơn Hạ Hỏa','Hỏa'],['Bình Địa Mộc','Mộc'],['Bích Thượng Thổ','Thổ'],['Kim Bạch Kim','Kim'],['Phú Đăng Hỏa','Hỏa'],['Thiên Hà Thủy','Thủy'],['Đại Trạch Thổ','Thổ'],['Thoa Xuyến Kim','Kim'],['Tang Đố Mộc','Mộc'],['Đại Khê Thủy','Thủy'],['Sa Trung Thổ','Thổ'],['Thiên Thượng Hỏa','Hỏa'],['Thạch Lựu Mộc','Mộc'],['Đại Hải Thủy','Thủy']];
+const napAm=(c,z)=>NAPAM[INT(mod(6*c-5*z,60)/2)];
+const CUC_NUM={'Thủy':2,'Mộc':3,'Kim':4,'Thổ':5,'Hỏa':6};
+const CUC_NAME={2:'Thủy Nhị Cục',3:'Mộc Tam Cục',4:'Kim Tứ Cục',5:'Thổ Ngũ Cục',6:'Hỏa Lục Cục'};
+const CHI_HANH=['Thủy','Thổ','Mộc','Mộc','Thổ','Hỏa','Hỏa','Thổ','Kim','Kim','Thổ','Thủy'];
+const SINH={Kim:'Thủy',Thủy:'Mộc',Mộc:'Hỏa',Hỏa:'Thổ',Thổ:'Kim'}, KHAC={Kim:'Mộc',Mộc:'Thổ',Thổ:'Thủy',Thủy:'Hỏa',Hỏa:'Kim'};
+function rel(a,b){if(a===b)return'hoa';if(SINH[a]===b)return'sinh';if(SINH[b]===a)return'duocsinh';if(KHAC[a]===b)return'khac';return'bikhac';}
+const BRIGHT={'Tử Vi':'BĐMBVMMĐMBVB','Thiên Cơ':'ĐĐHMMVĐĐVMMH','Thái Dương':'HĐVVVMMĐHHHH','Vũ Khúc':'VMVĐMHVMVĐMH','Thiên Đồng':'VHMĐHĐHHMHHĐ','Liêm Trinh':'VĐVHMHVĐVHMH','Thiên Phủ':'MBMBVĐMĐMBVĐ','Thái Âm':'VĐHHHHHĐVMMM','Tham Lang':'VMĐHMHVMĐHMH','Cự Môn':'VHVMHHVHĐMHĐ','Thiên Tướng':'VĐMHVĐVĐMHVĐ','Thiên Lương':'VĐVVMHMĐVHMH','Thất Sát':'MĐMHHVMĐMHHV','Phá Quân':'MVHHĐHMVHHĐH'};
+const HANH={'Tử Vi':'Thổ','Thiên Cơ':'Mộc','Thái Dương':'Hỏa','Vũ Khúc':'Kim','Thiên Đồng':'Thủy','Liêm Trinh':'Hỏa','Thiên Phủ':'Thổ','Thái Âm':'Thủy','Tham Lang':'Thủy','Cự Môn':'Thủy','Thiên Tướng':'Thủy','Thiên Lương':'Mộc','Thất Sát':'Kim','Phá Quân':'Thủy'};
+const BR_NAME={M:'miếu',V:'vượng','Đ':'đắc',B:'bình',H:'hãm'};
+const LOC=[2,3,5,6,5,6,8,9,11,0], KHOI=[1,0,11,11,1,0,1,6,3,3], VIET=[7,8,9,9,7,8,7,2,5,5];
+const HOA=[['Liêm Trinh','Phá Quân','Vũ Khúc','Thái Dương'],['Thiên Cơ','Thiên Lương','Tử Vi','Thái Âm'],['Thiên Đồng','Thiên Cơ','Văn Xương','Liêm Trinh'],['Thái Âm','Thiên Đồng','Thiên Cơ','Cự Môn'],['Tham Lang','Thái Âm','Hữu Bật','Thiên Cơ'],['Vũ Khúc','Tham Lang','Thiên Lương','Văn Khúc'],['Thái Dương','Vũ Khúc','Thái Âm','Thiên Đồng'],['Cự Môn','Thái Dương','Văn Khúc','Văn Xương'],['Thiên Lương','Tử Vi','Tả Phù','Vũ Khúc'],['Phá Quân','Cự Môn','Thái Âm','Tham Lang']];
+const HOA_NAME=['Hóa Lộc','Hóa Quyền','Hóa Khoa','Hóa Kỵ'];
+// nhóm tam hợp theo chi%4: 0=Thân Tý Thìn,1=Tỵ Dậu Sửu,2=Dần Ngọ Tuất,3=Hợi Mão Mùi
+const G_MA=[2,11,8,5], G_DAO=[9,6,3,0], G_KIEPSAT=[5,2,11,8], G_HOACAI=[4,1,10,7], G_TIEUHAN=[10,7,4,1], G_HOA=[2,3,1,9], G_LINH=[10,10,3,10];
+const G_TAMTAI=[[2,3,4],[11,0,1],[8,9,10],[5,6,7]];
+const COTHAN=[2,5,8,11], QUATU=[10,1,4,7];
+const TRIET=[[8,9],[6,7],[4,5],[2,3],[0,1]];
+const TS_START={'Thủy':8,'Thổ':8,'Mộc':11,'Kim':5,'Hỏa':2};
+const TRANGSINH=['Tràng Sinh','Mộc Dục','Quan Đới','Lâm Quan','Đế Vượng','Suy','Bệnh','Tử','Mộ','Tuyệt','Thai','Dưỡng'];
+const BACSI=['Bác Sĩ','Lực Sĩ','Thanh Long','Tiểu Hao','Tướng Quân','Tấu Thư','Phi Liêm','Hỷ Thần','Bệnh Phù','Đại Hao','Phục Binh','Quan Phủ'];
+const THAITUE=['Thái Tuế','Thiếu Dương','Tang Môn','Thiếu Âm','Quan Phù','Tử Phù','Tuế Phá','Long Đức','Bạch Hổ','Phúc Đức','Điếu Khách','Trực Phù'];
+const MENH_CHU=['Tham Lang','Cự Môn','Lộc Tồn','Văn Khúc','Liêm Trinh','Vũ Khúc','Phá Quân','Vũ Khúc','Liêm Trinh','Văn Khúc','Lộc Tồn','Cự Môn'];
+const THAN_CHU=['Linh Tinh','Thiên Tướng','Thiên Lương','Thiên Đồng','Văn Xương','Thiên Cơ','Hỏa Tinh','Thiên Tướng','Thiên Lương','Thiên Đồng','Văn Xương','Thiên Cơ'];
+const W={'Tả Phù':1.1,'Hữu Bật':1.1,'Văn Xương':0.9,'Văn Khúc':0.9,'Thiên Khôi':1.1,'Thiên Việt':1.1,'Lộc Tồn':1.4,'Hóa Lộc':1.6,'Hóa Quyền':1.2,'Hóa Khoa':1.2,'Thiên Mã':0.4,'Long Trì':0.3,'Phượng Các':0.3,'Tam Thai':0.3,'Bát Tọa':0.3,'Ân Quang':0.4,'Thiên Quý':0.4,'Thai Phụ':0.3,'Phong Cáo':0.3,'Hồng Loan':0.3,'Thiên Hỷ':0.3,'Giải Thần':0.4,'Thiên Giải':0.3,'Địa Giải':0.3,'Thiên Y':0.2,'Hoa Cái':0.2,'Đào Hoa':0.1,
+'Kình Dương':-1.4,'Đà La':-1.2,'Hỏa Tinh':-1.2,'Linh Tinh':-1.2,'Địa Không':-1.6,'Địa Kiếp':-1.6,'Hóa Kỵ':-1.6,'Thiên Hình':-0.7,'Thiên Riêu':-0.5,'Kiếp Sát':-0.5,'Thiên Khốc':-0.4,'Thiên Hư':-0.4,'Cô Thần':-0.3,'Quả Tú':-0.3,'Thiên La':-0.3,'Địa Võng':-0.3,'Thiên Thương':-0.3,'Thiên Sứ':-0.3};
+const SAT6=['Kình Dương','Đà La','Hỏa Tinh','Linh Tinh','Địa Không','Địa Kiếp'];
+const BIGGOOD=['Tả Phù','Hữu Bật','Văn Xương','Văn Khúc','Thiên Khôi','Thiên Việt','Lộc Tồn','Hóa Lộc','Hóa Quyền','Hóa Khoa'];
+const HARSH=new Set(['Thất Sát','Phá Quân','Tham Lang','Liêm Trinh','Cự Môn']);
+
+/* ===== Lập lá số ===== */
+function buildChart(inp){
+  // inp: {name, gender:'nam'|'nu', jd, hour, minute, viewYear, inputText}
+  let jd=inp.jd; const lateTy=inp.hour>=23; if(lateTy) jd+=1;
+  const [sd,sm,sy]=jdToDate(jd);
+  const [ld,lm,ly,leap]=solar2lunar(sd,sm,sy);
+  const m = (leap && ld>15) ? (lm%12)+1 : lm;
+  const yc=mod(ly+6,10), yz=mod(ly+8,12);
+  const hz=INT((inp.hour+1)/2)%12;
+  const male=inp.gender==='nam', duong=yc%2===0;
+  const thuan=(duong&&male)||(!duong&&!male);
+  const menh=mod(2+(m-1)-hz,12), than=mod(2+(m-1)+hz,12);
+  const canDan=mod(yc*2+2,10);
+  const P=CHI.map((_,i)=>({chi:i,can:mod(canDan+mod(i-2,12),10),stars:[],name:'',tuan:false,triet:false}));
+  for(let k=0;k<12;k++) P[mod(menh+k,12)].name=CUNG[k];
+  const napMenh=napAm(P[menh].can,menh), cucHanh=napMenh[1], cuc=CUC_NUM[cucHanh];
+  const banMenh=napAm(yc,yz);
+  const pos={};
+  const add=(p,name,kind,bright)=>{p=mod(p,12);const kd=kind||((W[name]||0)>=0.3?'cat':(W[name]||0)<0?'sat':'phu');P[p].stars.push({name,kind:kd,bright:bright||null});pos[name]=p;};
+  // Tử Vi
+  let k=0; while((ld+k)%cuc!==0)k++; const q=(ld+k)/cuc;
+  const tv=mod(2+q-1+(k%2===0?k:-k),12);
+  const chainTV=[['Tử Vi',0],['Thiên Cơ',-1],['Thái Dương',-3],['Vũ Khúc',-4],['Thiên Đồng',-5],['Liêm Trinh',-8]];
+  const tp=mod(4-tv,12);
+  const chainTP=[['Thiên Phủ',0],['Thái Âm',1],['Tham Lang',2],['Cự Môn',3],['Thiên Tướng',4],['Thiên Lương',5],['Thất Sát',6],['Phá Quân',10]];
+  chainTV.forEach(([n,o])=>{const p=mod(tv+o,12);add(p,n,'chinh',BRIGHT[n][p]);});
+  chainTP.forEach(([n,o])=>{const p=mod(tp+o,12);add(p,n,'chinh',BRIGHT[n][p]);});
+  // Phụ tinh
+  const taphu=mod(4+m-1,12), huubat=mod(10-(m-1),12), xuong=mod(10-hz,12), khuc=mod(4+hz,12);
+  add(taphu,'Tả Phù');add(huubat,'Hữu Bật');add(xuong,'Văn Xương');add(khuc,'Văn Khúc');
+  add(KHOI[yc],'Thiên Khôi');add(VIET[yc],'Thiên Việt');
+  const loc=LOC[yc]; add(loc,'Lộc Tồn');add(loc+1,'Kình Dương');add(loc-1,'Đà La');
+  const g=yz%4;
+  add(G_MA[g],'Thiên Mã');
+  add(thuan?G_HOA[g]+hz:G_HOA[g]-hz,'Hỏa Tinh');add(thuan?G_LINH[g]-hz:G_LINH[g]+hz,'Linh Tinh');
+  add(11-hz,'Địa Không');add(11+hz,'Địa Kiếp');
+  add(6-yz,'Thiên Khốc');add(6+yz,'Thiên Hư');
+  const hl=mod(3-yz,12); add(hl,'Hồng Loan');add(hl+6,'Thiên Hỷ');
+  add(G_DAO[g],'Đào Hoa');add(G_KIEPSAT[g],'Kiếp Sát');add(G_HOACAI[g],'Hoa Cái');
+  add(9+m-1,'Thiên Hình');add(1+m-1,'Thiên Riêu');add(1+m-1,'Thiên Y');
+  const ct=INT(mod(yz+1,12)/3); add(COTHAN[ct],'Cô Thần');add(QUATU[ct],'Quả Tú');
+  add(4+yz,'Long Trì');const pc=mod(10-yz,12);add(pc,'Phượng Các');add(pc,'Giải Thần');
+  add(6+hz,'Thai Phụ');add(2+hz,'Phong Cáo');
+  add(taphu+ld-1,'Tam Thai');add(huubat-(ld-1),'Bát Tọa');
+  add(xuong+ld-2,'Ân Quang');add(khuc-ld+2,'Thiên Quý');
+  add(8+m-1,'Thiên Giải');add(7+m-1,'Địa Giải');
+  add(4,'Thiên La');add(10,'Địa Võng');
+  add(mod(menh+5,12),'Thiên Thương');add(mod(menh+7,12),'Thiên Sứ');
+  HOA[yc].forEach((t,i)=>{if(pos[t]!==undefined)add(pos[t],HOA_NAME[i],i===3?'sat':'cat');});
+  // Tuần Triệt
+  const st=mod(yz-yc,12); const tuan=[mod(st+10,12),mod(st+11,12)]; tuan.forEach(p=>P[p].tuan=true);
+  const triet=TRIET[yc%5]; triet.forEach(p=>P[p].triet=true);
+  // Vòng
+  const ts0=TS_START[cucHanh];
+  for(let i=0;i<12;i++){P[mod(thuan?ts0+i:ts0-i,12)].trangsinh=TRANGSINH[i];P[mod(thuan?loc+i:loc-i,12)].bacsi=BACSI[i];P[mod(yz+i,12)].thaitue=THAITUE[i];}
+  // Đại hạn
+  const daihan=[];
+  for(let i=0;i<12;i++){const p=mod(thuan?menh+i:menh-i,12);P[p].dh=cuc+10*i;daihan.push({p,from:cuc+10*i,to:cuc+10*i+9});}
+  // Tiểu hạn: chi năm nào rơi vào cung nào
+  const th0=G_TIEUHAN[g];
+  for(let p=0;p<12;p++){P[p].thYear=mod(male?yz+(p-th0):yz-(p-th0),12);}
+  const ch={inp,lateTy,jd,solar:[sd,sm,sy],lunar:[ld,lm,ly,leap],m,yc,yz,hz,male,duong,thuan,menh,than,P,pos,cuc,cucHanh,banMenh,napMenh,daihan,tuan,triet,
+    dayCan:mod(jd+9,10),dayChi:mod(jd+1,12),monthCan:mod(yc*2+2+lm-1,10),monthChi:mod(lm+1,12),hourCan:mod(mod(jd+9,10)*2+hz,10),
+    menhChu:MENH_CHU[menh],thanChu:THAN_CHU[yz]};
+  scoreAll(ch);
+  return ch;
+}
+function sv(s,chi){
+  if(s.kind==='chinh'){const b=s.bright;return b==='M'?2.6:b==='V'?2.0:b==='Đ'?1.2:b==='B'?0.3:(HARSH.has(s.name)?-2.0:-1.4);}
+  if((s.name==='Kình Dương'||s.name==='Đà La')&&[1,4,7,10].includes(chi))return -0.6;
+  if((s.name==='Hỏa Tinh'||s.name==='Linh Tinh')&&[2,3,5,6].includes(chi))return -0.6;
+  if((s.name==='Địa Không'||s.name==='Địa Kiếp')&&[2,5,8,11].includes(chi))return -0.9;
+  return W[s.name]||0;
+}
+const tpOf=p=>[p,mod(p+4,12),mod(p+8,12),mod(p+6,12)];
+function scoreAll(ch){
+  const P=ch.P;
+  const raw=P.map(c=>c.stars.reduce((a,s)=>a+sv(s,c.chi),0));
+  const chinhSum=P.map(c=>c.stars.filter(s=>s.kind==='chinh').reduce((a,s)=>a+sv(s,c.chi),0));
+  P.forEach((c,p)=>{
+    c.vcd=!c.stars.some(s=>s.kind==='chinh');
+    const opp=mod(p+6,12);
+    let own=raw[p]*((c.tuan||c.triet)?0.6:1);
+    if(c.vcd) own+=0.7*chinhSum[opp]-0.6;
+    let t=own+(c.vcd?0.3:0.5)*raw[opp]+0.3*(raw[mod(p+4,12)]+raw[mod(p+8,12)]);
+    const names=tpOf(p).flatMap(x=>P[x].stars.map(s=>s.name));
+    const has=n=>names.includes(n);
+    if(has('Địa Không')&&has('Địa Kiếp'))t-=0.8;
+    if(has('Kình Dương')&&has('Đà La'))t-=0.4;
+    if(has('Lộc Tồn')&&has('Hóa Lộc'))t+=0.8;
+    if(tpOf(p).some(x=>{const n=P[x].stars.map(s=>s.name);return n.includes('Thiên Mã')&&(n.includes('Lộc Tồn')||n.includes('Hóa Lộc'));}))t+=0.6;
+    c.total=t; c.score=Math.max(5,Math.min(97,Math.round(48+t*4.5)));
+  });
+}
+const label=s=>s>=75?'Rất tốt':s>=62?'Tốt':s>=48?'Trung bình':s>=35?'Kém':'Xấu';
+const level=s=>s>=62?0:s>=48?1:2;
+/* ===== Kho luận giải ===== */
+const INFO={
+'Tử Vi':{menh:['đĩnh đạc, có uy, thích làm chủ, được người nể; có tài lãnh đạo và gặp hạn thường tự giải được','tự cao, sĩ diện, muốn làm lớn nhưng thực lực chưa theo kịp, dễ bị cô lập'],tai:['tiền đến từ vị trí và uy tín, giữ tiền tốt, càng về sau càng vững','chi tiêu vì sĩ diện, tiền ra vào thất thường, bề ngoài sung túc hơn thực tế'],quan:['hợp quản lý, điều hành, cơ quan nhà nước hoặc doanh nghiệp lớn; có cơ hội lên chức','muốn làm sếp nhưng hay bị cản; hợp làm chuyên môn hơn là quản lý'],tinh:['người phối ngẫu đứng đắn, có địa vị, gia đình nề nếp','cả hai cùng cái tôi lớn, hay tranh quyền quyết định, hôn nhân có khoảng cách'],than:['nền sức khỏe tốt, chỉ cần giữ tỳ vị','tỳ vị, dạ dày, khí huyết kém; dễ suy nhược vì áp lực'],nguoi:['người có địa vị, nề nếp, giúp được mình','người cứng nhắc, áp đặt, khó gần'],khac:['được che chở, nền tảng vững','bề ngoài đẹp nhưng bên trong rỗng, nền tảng hình thức']},
+'Thiên Cơ':{menh:['thông minh, nhanh nhạy, giỏi tính toán và lập kế hoạch; khéo tay, hợp kỹ thuật, tư vấn','nghĩ nhiều làm ít, hay lo, tính thiệt hơn quá mức, dễ bất an và thay đổi xoành xoạch'],tai:['kiếm tiền bằng chất xám, mưu kế; tiền đến đều nhưng ít khi lớn đột ngột','tiền vào ra liên tục, hay đổi kế hoạch làm ăn nên khó tích lũy'],quan:['hợp kỹ thuật, kế hoạch, tham mưu, công nghệ, cơ khí; thăng tiến nhờ năng lực','hay đổi việc, nhảy việc nhiều, khó giữ một vị trí lâu'],tinh:['người phối ngẫu thông minh, trẻ trung, hiểu ý','tình cảm hay nghi ngờ, so đo; dễ chênh lệch tuổi hoặc xa nhau từng giai đoạn'],than:['cần giữ gan và thần kinh','gan, mật, thần kinh, tay chân; dễ mất ngủ vì suy nghĩ'],nguoi:['người khéo léo, nhanh trí, giúp mình bằng ý tưởng','người tính toán, thất thường, khó tin cậy lâu dài'],khac:['linh hoạt, thay đổi theo hướng tốt','bất ổn, thay đổi nhiều, không yên']},
+'Thái Dương':{menh:['quang minh, rộng rãi, hào phóng, thích giúp người; có danh tiếng, hợp việc công khai','nóng vội, lo chuyện bao đồng, làm nhiều mà ít được ghi nhận; vất vả, hao tổn tinh lực'],tai:['tiền đến từ danh tiếng và công việc công khai; hào phóng mà vẫn dư','kiếm được nhưng tiêu nhiều, hay bị nhờ vả, tiền khó giữ'],quan:['hợp chính quyền, giáo dục, truyền thông, ngoại giao; dễ nổi danh','làm vất vả mà công lao người khác hưởng; sự nghiệp lên xuống'],tinh:['người phối ngẫu đàng hoàng, hào phóng, có tiếng nói','phối ngẫu nóng tính, bận rộn; vợ chồng ít thời gian cho nhau'],than:['cần giữ mắt, tim, huyết áp','mắt, tim mạch, huyết áp, đau đầu'],nguoi:['người có uy tín, rộng lượng (thường là nam giới)','người nóng nảy, hay hứa mà không làm'],khac:['sáng sủa, được tiếng tốt','hao tổn, ồn ào mà ít thực chất']},
+'Vũ Khúc':{menh:['cương nghị, quyết đoán, thực tế, giỏi tài chính; nói là làm','cứng đầu, khô khan, cô độc; quyết sai thời điểm, vất vả vì tiền'],tai:['tài tinh đắc địa: kiếm tiền giỏi, biết giữ và đầu tư, có thể giàu từ kinh doanh, tài chính','tiền kiếm vất vả, hay gặp vụ làm ăn thua lỗ, dễ vướng nợ'],quan:['hợp tài chính, ngân hàng, kinh doanh, kỹ thuật, quân đội','việc nặng nhọc, va chạm cấp trên, thu nhập không tương xứng'],tinh:['người phối ngẫu giỏi kiếm tiền, đảm đang nhưng khô khan','hôn nhân lạnh, ít lời ngọt, dễ muộn hoặc trắc trở, hay xung khắc vì tiền'],than:['cần giữ phổi, hô hấp','phổi, phế quản, răng; đề phòng va chạm kim khí, mổ xẻ'],nguoi:['người thực tế, giúp được mình về tài chính','người cứng rắn, sòng phẳng đến lạnh lùng'],khac:['vững chắc về vật chất','khô cứng, hao tổn vì tiền']},
+'Thiên Đồng':{menh:['hiền hòa, dễ chịu, lạc quan, biết hưởng; tuổi trẻ vất vả, về sau an nhàn','thiếu ý chí, ngại khó, ham vui, hay bỏ dở; tình cảm dễ dao động'],tai:['tiền đến tự nhiên, lúc khó có người giúp; trước khó sau dễ','tiền vào tay là tiêu, thiếu kế hoạch, không tích lũy được'],quan:['hợp dịch vụ, chăm sóc, giáo dục, công việc ổn định nhẹ nhàng','thay đổi việc nhiều, thiếu động lực phấn đấu, dễ an phận'],tinh:['người phối ngẫu hiền, vui vẻ, hôn nhân êm đềm','tình cảm lỏng lẻo, dễ thay lòng hoặc lấy muộn, hôn nhân nhạt'],than:['cần giữ thận, bàng quang','thận, bàng quang, tai; dễ tăng cân, bệnh hệ bài tiết'],nguoi:['người hiền lành, dễ chịu','người dễ dãi, thiếu trách nhiệm'],khac:['an nhàn, hưởng phúc','trôi nổi, thiếu ổn định']},
+'Liêm Trinh':{menh:['nguyên tắc, cương trực, có tài tổ chức; làm việc nghiêm túc, có chí tiến thủ','nóng nảy, cố chấp, dễ vướng thị phi, kiện tụng; tình cảm phức tạp'],tai:['kiếm tiền bằng chức vụ, quan hệ; tiền đến từ việc lớn','tiền dính tranh chấp, pháp lý; làm ăn dễ bị phạt, hao vì kiện tụng'],quan:['hợp pháp luật, công an, quân đội, quản lý hành chính','dễ va chạm cấp trên, vướng kỷ luật, nghề nghiệp hay bị điều tiếng'],tinh:['người phối ngẫu có cá tính, đam mê','tình cảm phức tạp, ghen tuông, dễ ngoại tình hoặc đổ vỡ'],than:['cần giữ tim, máu','máu huyết, tim, bệnh phụ khoa/nam khoa; đề phòng tai nạn, mổ xẻ'],nguoi:['người có nguyên tắc, mạnh mẽ','người cố chấp, hay gây thị phi'],khac:['kỷ cương, chặt chẽ','thị phi, rắc rối giấy tờ, pháp lý']},
+'Thiên Phủ':{menh:['ôn hòa, chín chắn, biết giữ gìn, có khiếu quản lý tài sản; đời sống đầy đủ','bảo thủ, thụ động, giữ kẽ; có của nhưng ngại thay đổi nên lỡ cơ hội'],tai:['như kho tiền: tích lũy tốt, có của để dành, ít khi túng thiếu','có của nhưng giữ không chặt, tiền nằm chết, khó sinh lời'],quan:['hợp quản lý tài chính, kế toán, hành chính, doanh nghiệp ổn định','ổn định nhưng chậm tiến, ngại va chạm nên ít bứt phá'],tinh:['người phối ngẫu đảm đang, biết vun vén, gia đình ấm no','hôn nhân đủ về vật chất nhưng nhạt về cảm xúc'],than:['cần giữ dạ dày','dạ dày, tiêu hóa, béo phì'],nguoi:['người phúc hậu, có điều kiện, hỗ trợ được','người giữ của, ít khi chịu giúp'],khac:['đầy đủ, có tích trữ','đủ đầy bề ngoài nhưng trì trệ']},
+'Thái Âm':{menh:['dịu dàng, tinh tế, giàu cảm xúc, thẩm mỹ tốt; có lộc nhà đất','đa sầu, nhạy cảm quá mức, thiếu quyết đoán; dễ bị lợi dụng tình cảm'],tai:['giàu bền, tích tiểu thành đại; có lợi về nhà đất, bất động sản','tiền bạc thất thường, dễ hao vì gia đình hoặc phụ nữ'],quan:['hợp tài chính, bất động sản, nghệ thuật, việc cần tỉ mỉ','công việc kém ổn định, làm âm thầm mà không được ghi nhận'],tinh:['người phối ngẫu dịu dàng, ưa nhìn, chu đáo','tình duyên lận đận, buồn nhiều hơn vui, dễ xa cách'],than:['cần giữ thận, nội tiết','thận, nội tiết, mắt; nữ dễ rối loạn kinh nguyệt'],nguoi:['người hiền, tận tình (thường là nữ giới)','người đa sầu, hay kể khổ'],khac:['yên ổn, có nhà đất','lạnh lẽo, ít yên ổn']},
+'Tham Lang':{menh:['đa tài, giao tiếp giỏi, nhiều tham vọng; phát muộn nhưng phát lớn, khéo kinh doanh','ham vui, đa dục, dễ sa vào tửu sắc, cờ bạc; tham nhiều mà thiếu bền'],tai:['kiếm tiền giỏi qua giao tế, kinh doanh, giải trí; có thể phát nhanh','tiền dễ đến dễ đi, hao vì ăn chơi, đầu cơ'],quan:['hợp kinh doanh, ngoại giao, giải trí, ẩm thực; càng về sau càng lên','làm nhiều việc cùng lúc mà không việc nào đến nơi'],tinh:['người phối ngẫu duyên dáng, hấp dẫn','đào hoa nặng, dễ ngoại tình hoặc bị phụ bạc; hôn nhân nhiều sóng gió'],than:['cần giữ gan, thận','gan, thận, sinh lý; bệnh do ăn uống, rượu bia'],nguoi:['người khéo giao tiếp, nhiều quan hệ','người ham chơi, dễ rủ rê vào việc xấu'],khac:['nhiều cơ hội, nhiều mối quan hệ','sa đà, tham dẫn đến hao']},
+'Cự Môn':{menh:['ăn nói giỏi, lý luận sắc, phân tích sâu; hợp nghề dùng lời nói','đa nghi, hay bất mãn, khẩu thiệt thị phi; dễ mất lòng người vì lời nói'],tai:['kiếm tiền bằng miệng: luật, tư vấn, giảng dạy, bán hàng','tiền đi kèm tranh cãi, dễ mất tiền vì tin nhầm hoặc bị nói xấu'],quan:['hợp luật, giáo dục, truyền thông, tư vấn, y dược','môi trường nhiều thị phi, bị đố kỵ, hay cãi vã với đồng nghiệp'],tinh:['người phối ngẫu nói chuyện hợp, hiểu biết','vợ chồng hay cãi nhau, nghi ngờ, ngăn cách; dễ có người thứ ba chen vào'],than:['cần giữ tiêu hóa','dạ dày, miệng, răng; bệnh khó chẩn đoán'],nguoi:['người hiểu biết, nói có lý','người hay nói sau lưng, gây thị phi'],khac:['có tiếng nói, có lý lẽ','thị phi, khẩu thiệt, hiểu lầm']},
+'Thiên Tướng':{menh:['đứng đắn, chính trực, có trách nhiệm, thích giúp người; được tín nhiệm','dễ bị lợi dụng, làm cho người khác hưởng; thiếu chủ kiến, hay bị kéo vào chuyện người'],tai:['tiền đến ổn định từ chức vụ, uy tín','hay đứng ra bảo lãnh, cho mượn rồi mất'],quan:['hợp hành chính, nhân sự, thư ký, vị trí phó; được giao quyền','làm nhiều mà không được thăng, hay bị đổ lỗi thay'],tinh:['người phối ngẫu chu đáo, đáng tin','hôn nhân dễ bị người ngoài can thiệp, tình cảm trắc trở'],than:['cần giữ da, tiết niệu','da, bàng quang, tiết niệu'],nguoi:['người đáng tin, có trách nhiệm','người ba phải, hay ăn theo'],khac:['ổn định, có người giúp','hay bị liên lụy vì người khác']},
+'Thiên Lương':{menh:['hiền lương, có tâm, biết lo cho người; được che chở, gặp nạn có người cứu','hay lo chuyện người, cô độc, sống vất vả, hay phải gánh việc'],tai:['tiền đủ dùng, có quý nhân giúp; hợp y, giáo dục, bảo hiểm','tiền vào không nhiều, hay chi cho người khác'],quan:['hợp y dược, giáo dục, bảo hiểm, công chức; được cấp trên che chở','việc nhàn mà không lên, hoặc vất vả vì gánh trách nhiệm'],tinh:['người phối ngẫu chín chắn hoặc lớn tuổi hơn, biết chăm lo','hôn nhân muộn, chênh lệch tuổi, có lúc lạnh nhạt'],than:['sức khỏe khá, có thọ','dạ dày, gan; bệnh mãn tính kéo dài'],nguoi:['người có đức, che chở mình','người hay khuyên mà không thực giúp'],khac:['được che chở, gặp dữ hóa lành','cô độc, ít được hưởng']},
+'Thất Sát':{menh:['dũng cảm, quyết đoán, dám nghĩ dám làm; hợp tự lập, khởi nghiệp, quân sự','liều lĩnh, nóng nảy, cô độc; đời nhiều biến cố, dễ gặp tai nạn'],tai:['kiếm tiền bằng sự dám làm; phát mạnh khi gặp thời','tiền lúc có lúc không, làm ăn mạo hiểm dễ thua lỗ nặng'],quan:['hợp quân đội, công an, kỹ thuật, tự kinh doanh; có thể lập nghiệp lớn','sự nghiệp thăng trầm dữ dội, hay đổi nghề, va chạm mạnh'],tinh:['người phối ngẫu cá tính mạnh, quyết đoán','hôn nhân xung khắc, dễ ly thân, ly hôn hoặc kết hôn muộn'],than:['cần giữ phổi','phổi, hô hấp; tai nạn, thương tích, mổ xẻ'],nguoi:['người mạnh mẽ, bảo vệ được mình','người hung hăng, dễ gây xung đột'],khac:['biến động lớn nhưng có cơ hội','biến động, bất an, nguy hiểm']},
+'Phá Quân':{menh:['dám phá cũ lập mới, mạnh mẽ, có tinh thần cải cách; hợp khai phá','bướng bỉnh, phá tán, khó hợp tác; đời nhiều lần làm lại từ đầu'],tai:['tiền phát từ đổi mới, đầu tư mạo hiểm thành công','hao tán lớn, tiêu phóng tay, đầu tư hay thất bại'],quan:['hợp ngành mới, kỹ thuật, quân sự, tự lập; phá cách mà thành','hay nhảy việc, bất mãn môi trường, sự nghiệp gián đoạn'],tinh:['người phối ngẫu mạnh mẽ, độc lập','hôn nhân dễ đổ vỡ, có thể lập gia đình hơn một lần'],than:['cần giữ thận, máu','thận, máu, sinh dục; tai nạn, thương tích'],nguoi:['người dám làm, cùng khai phá được','người phá phách, gây hao tổn cho mình'],khac:['đổi mới, khởi đầu mới','hao tán, đổ vỡ, xáo trộn']}};
+const DOMAIN={'Mệnh':'menh','Tài Bạch':'tai','Quan Lộc':'quan','Phu Thê':'tinh','Tật Ách':'than','Phụ Mẫu':'nguoi','Huynh Đệ':'nguoi','Tử Tức':'nguoi','Nô Bộc':'nguoi','Điền Trạch':'khac','Phúc Đức':'khac','Thiên Di':'khac'};
+const PREFIX={'Phụ Mẫu':'Cha mẹ là ','Huynh Đệ':'Anh chị em là ','Tử Tức':'Con cái là ','Nô Bộc':'Bạn bè, cấp dưới là ','Điền Trạch':'Nhà đất: ','Phúc Đức':'Phúc phần, dòng họ: ','Thiên Di':'Ra ngoài, đi xa: ','Tật Ách':'','Mệnh':'','Tài Bạch':'','Quan Lộc':'','Phu Thê':''};
+const CD={'Mệnh':'bản thân','Phụ Mẫu':'chuyện cha mẹ, cấp trên','Phúc Đức':'phúc phần, tinh thần','Điền Trạch':'nhà cửa, đất đai','Quan Lộc':'công việc','Nô Bộc':'bạn bè, cấp dưới, đối tác','Thiên Di':'việc đi xa, giao tiếp bên ngoài','Tật Ách':'sức khỏe','Tài Bạch':'tiền bạc','Tử Tức':'con cái','Phu Thê':'hôn nhân','Huynh Đệ':'anh chị em'};
+const NOTE={'Hóa Lộc':'{cd} có nguồn lợi, may về vật chất','Hóa Quyền':'{cd} có quyền, có tiếng nói, nắm thế chủ động','Hóa Khoa':'{cd} có danh tiếng, gặp khó có người gỡ','Hóa Kỵ':'{cd} vướng trắc trở, thị phi, việc dễ trục trặc và gây thất vọng','Lộc Tồn':'{cd} có lộc bền, giữ được nhưng hơi cô, hơi chặt chẽ','Tả Phù':'{cd} có người trợ giúp','Hữu Bật':'{cd} có người trợ giúp','Văn Xương':'{cd} thuận về học vấn, giấy tờ','Văn Khúc':'{cd} thuận về học vấn, tài ăn nói','Thiên Khôi':'{cd} gặp quý nhân','Thiên Việt':'{cd} gặp quý nhân','Kình Dương':'{cd} có va chạm, cạnh tranh, nóng vội hỏng việc','Đà La':'{cd} dây dưa, trì trệ, rắc rối ngầm','Hỏa Tinh':'{cd} có biến cố đột ngột, nóng nảy','Linh Tinh':'{cd} có biến cố bất ngờ, lo âu ngầm','Địa Không':'{cd} dễ hao hụt, kế hoạch đổ giữa chừng','Địa Kiếp':'{cd} dễ mất mát bất ngờ, phá tán','Thiên Mã':'{cd} gắn với di chuyển, bôn ba','Thiên Hình':'{cd} dính pháp lý, kỷ luật hoặc dao kéo','Thiên Riêu':'{cd} dính chuyện tình ái, ăn chơi, mờ ám','Đào Hoa':'{cd} có duyên, có sức hút','Hồng Loan':'{cd} có hỷ sự, duyên tình','Cô Thần':'{cd} có sự lẻ loi','Quả Tú':'{cd} có sự lẻ loi','Thiên Khốc':'{cd} có chuyện buồn phiền','Thiên Hư':'{cd} có sự hư hao'};
+const COMBO=[[['Tử Vi','Thiên Phủ'],'Tử Phủ đồng cung: phú quý song toàn, nhưng hai sao cùng làm chủ nên tính bảo thủ; thiếu cát tinh phù trợ thì cô.'],[['Tử Vi','Thất Sát'],'Tử Sát: hóa sát vi quyền — có uy, dám làm, hợp lãnh đạo; nóng vội dễ hỏng.'],[['Tử Vi','Phá Quân'],'Tử Phá: tham vọng lớn, thích cải tổ; thành bại thất thường, khó hợp tác.'],[['Tử Vi','Tham Lang'],'Tử Tham (đào hoa phạm chủ): giao tiếp giỏi nhưng dễ vướng tửu sắc, ham hưởng thụ.'],[['Tử Vi','Thiên Tướng'],'Tử Tướng: có quyền có ấn, được tín nhiệm.'],[['Vũ Khúc','Thiên Phủ'],'Vũ Phủ: tài lộc rất vững, giỏi tích lũy.'],[['Vũ Khúc','Tham Lang'],'Vũ Tham: trước 30 khó, sau 30 mới phát; kiếm tiền giỏi.'],[['Vũ Khúc','Thất Sát'],'Vũ Sát: quyết liệt, vất vả vì tiền, đề phòng tai nạn kim khí.'],[['Vũ Khúc','Phá Quân'],'Vũ Phá: tiền vào ra lớn, hao tán; hợp kỹ thuật, tay nghề.'],[['Vũ Khúc','Thiên Tướng'],'Vũ Tướng: thực tế, có uy tín, tài chính ổn.'],[['Liêm Trinh','Tham Lang'],'Liêm Tham: dễ sa ngã tửu sắc, thị phi; phải giữ mình.'],[['Liêm Trinh','Thất Sát'],'Liêm Sát: cương cường, hợp võ nghiệp; đề phòng tai nạn, kiện tụng.'],[['Liêm Trinh','Phá Quân'],'Liêm Phá: nhiều sóng gió, dễ mắc thị phi pháp lý.'],[['Liêm Trinh','Thiên Phủ'],'Liêm Phủ: có tài quản lý, giữ của; Liêm Trinh được Phủ chế nên bớt xấu.'],[['Liêm Trinh','Thiên Tướng'],'Liêm Tướng: nguyên tắc, công chính; kỵ gặp Kình, Đà, Thiên Hình.'],[['Thái Dương','Cự Môn'],'Cự Nhật: nổi danh nhờ lời nói, hợp ngoại giao, truyền thông.'],[['Thái Dương','Thái Âm'],'Nhật Nguyệt đồng cung: tài giỏi nhưng tâm tính hay đổi, lúc cương lúc nhu.'],[['Thái Dương','Thiên Lương'],'Dương Lương: có danh, hợp học thuật, giáo dục, y khoa.'],[['Thiên Cơ','Thái Âm'],'Cơ Nguyệt: tinh tế, khéo, hợp kế hoạch, tài chính; hay đổi chỗ ở.'],[['Thiên Cơ','Cự Môn'],'Cơ Cự: thông minh, lý luận giỏi; dễ thị phi, nghĩ nhiều.'],[['Thiên Cơ','Thiên Lương'],'Cơ Lương: mưu trí, ăn nói hay, hợp tư vấn, y học.'],[['Thiên Đồng','Thái Âm'],'Đồng Âm: hiền hòa, thẩm mỹ tốt; ở Tý rất đẹp, ở Ngọ kém.'],[['Thiên Đồng','Cự Môn'],'Đồng Cự: nhiều buồn phiền thầm kín, tình cảm trắc trở.'],[['Thiên Đồng','Thiên Lương'],'Đồng Lương: nhân hậu, an nhàn, được che chở.']];
+const VERDICT={'Mệnh':['Mệnh vững: có bản lĩnh và tố chất làm nên việc, gặp hạn xấu vẫn có đường xoay.','Mệnh trung bình: có điểm mạnh rõ nhưng nhược điểm cũng nhiều; thành hay bại phụ thuộc chọn đúng môi trường.','Mệnh yếu: đời nhiều trắc trở, phải tự thân vượt khó, dễ gặp vận rủi hơn người.'],'Phụ Mẫu':['Cha mẹ có điều kiện hoặc có đức, được nâng đỡ; cấp trên ưu ái.','Cha mẹ bình thường, giúp được nhưng không nhiều; có lúc bất đồng.','Duyên với cha mẹ mỏng: xa cách, bất hòa hoặc phải tự lập sớm; cấp trên khó tính.'],'Phúc Đức':['Phúc dày: họ hàng có người khá, gặp nạn được che chở, tinh thần an ổn.','Phúc phần trung bình, được hưởng một phần, phải tự vun thêm.','Phúc mỏng: ít được họ hàng đỡ, tâm hay bất an, dễ gặp chuyện xui không do mình.'],'Điền Trạch':['Có nhà đất, có của để dành; mua nhà thuận, có thể được thừa kế.','Nhà cửa có nhưng phải tự gây dựng, trung niên mới ổn định.','Nhà đất khó giữ: hay đổi chỗ ở, dễ bán tháo, tranh chấp hoặc hao tài sản.'],'Quan Lộc':['Sự nghiệp sáng: có vị trí, có tiếng nói, thăng tiến rõ.','Sự nghiệp ổn ở mức vừa, phải bền bỉ mới lên, ít đột phá.','Sự nghiệp lận đận: nhiều lần đổi việc, khó lên vị trí cao, hay bị chèn ép.'],'Nô Bộc':['Bạn bè, cấp dưới tốt, có người hết lòng; hợp tác thuận.','Bạn bè có tốt có xấu, phải chọn lọc khi hợp tác.','Dễ bị bạn bè, cấp dưới phản hoặc lợi dụng; tránh hùn hạp, bảo lãnh.'],'Thiên Di':['Ra ngoài gặp may, có quý nhân, đi xa làm ăn thuận.','Ra ngoài bình thường, có cơ hội nhưng phải tự tranh.','Ra ngoài dễ gặp rắc rối, thị phi, tai nạn; đi xa cần thận trọng.'],'Tật Ách':['Sức khỏe tốt, ít bệnh nặng, có bệnh dễ chữa.','Sức khỏe trung bình, có bệnh vặt dai dẳng ở bộ phận nêu trên.','Sức khỏe là điểm yếu: dễ mắc bệnh ở bộ phận nêu trên, cần khám định kỳ, đề phòng tai nạn.'],'Tài Bạch':['Tài lộc tốt: kiếm được, giữ được, có khả năng giàu.','Tài lộc đủ dùng, làm bao nhiêu hưởng bấy nhiêu; muốn giàu phải có kế hoạch.','Tài lộc kém: kiếm vất vả, hao nhiều, dễ nợ nần; không nên đầu cơ, cho vay.'],'Tử Tức':['Con cái ngoan, có hiếu, có đứa thành đạt.','Con cái bình thường, có giai đoạn nuôi dạy vất vả.','Đường con cái khó: muộn con, hiếm con hoặc con khó dạy, ít hợp.'],'Phu Thê':['Hôn nhân tốt: người phối ngẫu giúp được mình, gia đình êm ấm.','Hôn nhân có lúc trục trặc nhưng giữ được nếu biết nhường.','Hôn nhân trắc trở: dễ muộn, xung khắc, ly thân hoặc đổ vỡ; nên kết hôn muộn.'],'Huynh Đệ':['Anh chị em hòa thuận, giúp đỡ nhau.','Anh chị em bình thường, mỗi người một đường.','Anh chị em ít hợp, dễ bất hòa hoặc tranh chấp tài sản.']};
+const THAN_CU={'Mệnh':'Thân cư Mệnh: tự lập, đời do chính mình quyết định, ít nhờ được ai.','Phúc Đức':'Thân cư Phúc Đức: hậu vận dựa vào phúc phần; trọng đời sống tinh thần, được hưởng phúc tổ.','Quan Lộc':'Thân cư Quan Lộc: hậu vận gắn chặt với sự nghiệp; dễ thành người của công việc.','Thiên Di':'Thân cư Thiên Di: hay đi xa, đổi chỗ ở; thành công thường ở nơi xa quê.','Tài Bạch':'Thân cư Tài Bạch: coi trọng tiền bạc, hậu vận gắn với tài chính.','Phu Thê':'Thân cư Phu Thê: hậu vận chịu ảnh hưởng lớn của vợ/chồng; hôn nhân quyết định nhiều.'};
+/* ===== Phân tích ===== */
+const names=(ch,p)=>ch.P[mod(p,12)].stars.map(s=>s.name);
+const chinhOf=(ch,p)=>ch.P[mod(p,12)].stars.filter(s=>s.kind==='chinh');
+const isBright=b=>b==='M'||b==='V'||b==='Đ'||b==='B';
+const canchiCung=c=>CAN[c.can]+' '+CHI[c.chi];
+function starLine(cung,s){
+  const d=DOMAIN[cung]; let t=INFO[s.name][d][isBright(s.bright)?0:1];
+  const txt=(PREFIX[cung]||'')+t+(s.bright==='B'?' (bình hòa nên tác dụng vừa phải)':'');
+  return `<b>${s.name}</b> <span class="br br-${s.bright==='Đ'?'D':s.bright}">${BR_NAME[s.bright]}</span> — ${cap(txt)}.`;
+}
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+function comboLines(stars){const n=stars.map(s=>s.name);return COMBO.filter(([a])=>a.every(x=>n.includes(x))).map(x=>x[1]);}
+function analyzePalace(ch,p){
+  const c=ch.P[p], cung=c.name, out=[];
+  const opp=ch.P[mod(p+6,12)];
+  const chinh=c.stars.filter(s=>s.kind==='chinh');
+  if(chinh.length){
+    chinh.forEach(s=>out.push(starLine(cung,s)));
+    comboLines(chinh).forEach(t=>out.push(t));
+  }else{
+    const b=opp.stars.filter(s=>s.kind==='chinh');
+    out.push(`<b>Vô chính diệu</b> — cung không có chính tinh, mượn ${b.map(s=>s.name).join(', ')||'sao'} từ cung ${opp.name} (${CHI[opp.chi]}) chiếu sang. Tính chất của cung này không tự chủ, dễ chịu tác động từ bên ngoài.`);
+    b.forEach(s=>out.push(starLine(cung,s)));
+  }
+  const cd=CD[cung];
+  const cat=c.stars.filter(s=>NOTE[s.name]&&sv(s,c.chi)>0), sat=c.stars.filter(s=>NOTE[s.name]&&sv(s,c.chi)<=0&&s.kind!=='chinh');
+  if(cat.length) out.push('<span class="tag-good">Cát tinh</span> '+cat.map(s=>`<b>${s.name}</b>: ${NOTE[s.name].replace('{cd}',cd)}`).join('; ')+'.');
+  if(sat.length) out.push('<span class="tag-bad">Sát / bại tinh</span> '+sat.map(s=>{let t=NOTE[s.name].replace('{cd}',cd);if(sv(s,c.chi)>-1&&SAT6.includes(s.name))t+=' (đắc địa nên bớt hại)';return `<b>${s.name}</b>: ${t}`;}).join('; ')+'.');
+  // đặc thù
+  const n=c.stars.map(s=>s.name);
+  if(cung==='Phu Thê'&&(n.includes('Cô Thần')||n.includes('Quả Tú')))out.push('Cô Thần/Quả Tú đóng Phu Thê: duyên đến muộn, trong hôn nhân có lúc cô đơn dù ở cạnh nhau.');
+  if(cung==='Phu Thê'&&n.filter(x=>['Hồng Loan','Thiên Hỷ','Đào Hoa'].includes(x)).length>=2)out.push('Đào Hồng Hỷ hội Phu Thê: duyên đến sớm, người phối ngẫu có ngoại hình.');
+  if(cung==='Tài Bạch'&&(n.includes('Địa Không')||n.includes('Địa Kiếp')))out.push('Không Kiếp đóng Tài Bạch: tuyệt đối tránh đầu cơ, cờ bạc, cho vay lớn; tiền phát nhanh thì cũng mất nhanh.');
+  if(cung==='Tật Ách'&&(n.includes('Thiên Y')||n.includes('Giải Thần')||n.includes('Thiên Giải')))out.push('Có Thiên Y/Giải Thần ở Tật Ách: bệnh có thuốc, gặp thầy gặp thuốc.');
+  if(c.triet)out.push('<b>Triệt</b> án ngữ: cái tốt bị chặn, cái xấu cũng bị chặn; tuổi trẻ việc của cung này hay gãy giữa chừng, khoảng ngoài 30 mới thoát.');
+  else if(c.tuan)out.push('<b>Tuần</b> án ngữ: tác dụng của sao bị giảm, ảnh hưởng nhẹ dần về sau.');
+  // tam phương
+  const tpIdx=[mod(p+6,12),mod(p+4,12),mod(p+8,12)];
+  const tpN=tpIdx.flatMap(x=>ch.P[x].stars.map(s=>s.name));
+  const g=tpN.filter(x=>BIGGOOD.includes(x)), b=tpN.filter(x=>SAT6.includes(x)||x==='Hóa Kỵ');
+  out.push(`Tam phương tứ chính (xung chiếu ${opp.name}, tam hợp ${ch.P[tpIdx[1]].name}, ${ch.P[tpIdx[2]].name}): ${g.length?'cát tinh hội '+g.join(', '):'không có cát tinh lớn hội về'}; ${b.length?'sát tinh hội '+b.join(', '):'không có sát tinh lớn chiếu'}. ${g.length>b.length+1?'Được hỗ trợ tốt từ bên ngoài.':b.length>g.length+1?'Tam phương bị sát tinh vây: dù bản cung thế nào, việc của cung này cũng thường phải trả giá.':'Cát sát lẫn lộn.'}`);
+  const v=VERDICT[cung][level(c.score)];
+  return {score:c.score,label:label(c.score),lines:out,verdict:v};
+}
+function cachCuc(ch){
+  const R=[]; const P=ch.P, m=ch.menh; const mc=P[m];
+  const tpN=tpOf(m).flatMap(x=>names(ch,x)); const has=x=>tpN.includes(x); const inM=x=>names(ch,m).includes(x);
+  const chM=chinhOf(ch,m), chMn=chM.map(s=>s.name);
+  const tpChinh=tpOf(m).flatMap(x=>chinhOf(ch,x));
+  const find=n=>tpChinh.find(s=>s.name===n);
+  const add=(t,txt,k)=>R.push({t,txt,k});
+  if(has('Tử Vi')&&has('Thiên Phủ'))add('Tử Phủ triều viên','Tử Vi và Thiên Phủ cùng hội về Mệnh: nền tảng phú quý, dễ có địa vị và của cải.','good');
+  if(chMn.some(x=>['Thất Sát','Phá Quân','Tham Lang'].includes(x)))add('Sát Phá Tham','Mệnh thuộc cách Sát Phá Tham: đời biến động mạnh, thành bại đều lớn; hợp khai phá, tự lập, không hợp an phận.','mid');
+  const cndl=['Thiên Cơ','Thái Âm','Thiên Đồng','Thiên Lương'];
+  if(chMn.length&&chMn.every(x=>cndl.includes(x))&&tpChinh.filter(s=>cndl.includes(s.name)).length>=3)add('Cơ Nguyệt Đồng Lương','Hợp công chức, nghề ổn định, tham mưu, chuyên môn; ít hợp mạo hiểm kinh doanh lớn.','mid');
+  const td=find('Thái Dương'), ta=find('Thái Âm');
+  if(td&&ta&&isBright(td.bright)&&td.bright!=='B'&&isBright(ta.bright)&&ta.bright!=='B')add('Nhật Nguyệt tịnh minh','Thái Dương và Thái Âm đều sáng hội Mệnh: thông minh, danh lợi song toàn.','good');
+  if(td&&ta&&td.bright==='H'&&ta.bright==='H')add('Nhật Nguyệt phản bối','Thái Dương, Thái Âm đều hãm: vất vả, ly tổ, hay gặp người phụ lòng; phải tự lực.','bad');
+  if(inM('Thái Dương')&&m===6)add('Nhật lệ trung thiên','Thái Dương ở Ngọ thủ Mệnh: danh tiếng lớn, có quyền.','good');
+  if(inM('Thái Âm')&&m===11)add('Nguyệt lãng thiên môn','Thái Âm ở Hợi thủ Mệnh: giàu bền, thanh nhã.','good');
+  if(inM('Tử Vi')&&m===6)add('Cực hướng ly minh','Tử Vi ở Ngọ thủ Mệnh: quý cách, có địa vị.','good');
+  if(inM('Thất Sát')&&[0,2,6,8].includes(m))add('Thất Sát triều đẩu','Thất Sát ở Dần Thân Tý Ngọ thủ Mệnh: tay trắng lập nghiệp, có quyền uy.','good');
+  const nb=[names(ch,m+1),names(ch,m-1)];
+  const giap=(a,b)=>(nb[0].includes(a)&&nb[1].includes(b))||(nb[0].includes(b)&&nb[1].includes(a));
+  if(giap('Tả Phù','Hữu Bật'))add('Tả Hữu giáp Mệnh','Được người nâng đỡ hai bên, làm gì cũng có người phụ.','good');
+  if(giap('Văn Xương','Văn Khúc'))add('Xương Khúc giáp Mệnh','Học hành, giấy tờ thuận, có danh về chữ nghĩa.','good');
+  if(giap('Kình Dương','Đà La'))add('Kình Đà giáp Mệnh','Bị kẹp giữa hai sát tinh: hay bị chèn ép, có lộc mà giữ vất vả.','bad');
+  if(giap('Địa Không','Địa Kiếp'))add('Không Kiếp giáp Mệnh','Dễ gặp hao tán bất ngờ, kế hoạch hay đổ vỡ.','bad');
+  if(has('Văn Xương')&&has('Văn Khúc'))add('Văn tinh hội Mệnh','Xương Khúc hội: thông minh, học giỏi, giỏi chữ nghĩa, ăn nói.','good');
+  if(has('Tả Phù')&&has('Hữu Bật'))add('Tả Hữu hội Mệnh','Có vây cánh, được người giúp sức, hợp làm việc nhóm, quản lý.','good');
+  if(has('Thiên Khôi')&&has('Thiên Việt'))add('Khôi Việt hội Mệnh','Hay gặp quý nhân, có cơ hội thi cử, thăng tiến.','good');
+  if(has('Lộc Tồn')&&has('Hóa Lộc'))add('Song Lộc','Lộc Tồn và Hóa Lộc cùng hội Mệnh: tiền bạc dồi dào, có nhiều nguồn thu.','good');
+  if(tpOf(m).some(x=>{const n=names(ch,x);return n.includes('Thiên Mã')&&(n.includes('Lộc Tồn')||n.includes('Hóa Lộc'));}))add('Lộc Mã giao trì','Đi xa, buôn bán, di chuyển mà phát tài.','good');
+  if(has('Hóa Lộc')&&has('Hóa Quyền')&&has('Hóa Khoa'))add('Tam Hóa liên châu','Lộc Quyền Khoa cùng hội Mệnh: cách đẹp hiếm có, danh lợi đều đến.','good');
+  if(inM('Hóa Kỵ'))add('Hóa Kỵ thủ Mệnh','Hay gặp chuyện không như ý, thị phi, bị hiểu lầm; tâm nhiều uẩn khúc.','bad');
+  const satN=tpN.filter(x=>SAT6.includes(x));
+  if(satN.length>=3)add('Sát tinh vây Mệnh',`Có ${satN.join(', ')} hội về Mệnh: đời nhiều va vấp, tai ương; phải cẩn trọng, tránh mạo hiểm.`,'bad');
+  if(inM('Tham Lang')&&(inM('Hỏa Tinh')||inM('Linh Tinh')))add(inM('Hỏa Tinh')?'Hỏa Tham':'Linh Tham','Tham Lang gặp Hỏa/Linh: phát đột ngột, có thể giàu nhanh nhờ thời cơ.','good');
+  const lt=chM.find(s=>s.name==='Liêm Trinh');
+  if(lt&&lt.bright==='H'&&(inM('Thiên Hình')||inM('Kình Dương')))add('Liêm Trinh hãm gặp Hình/Kình','Đề phòng tai nạn, thương tích, kiện tụng pháp lý.','bad');
+  if(inM('Cự Môn')&&inM('Hóa Kỵ'))add('Cự Kỵ','Thị phi nặng, lời nói gây họa; tránh tranh cãi, ký kết vội.','bad');
+  if(mc.vcd){ if(mc.tuan||mc.triet)add('Vô chính diệu gặp Tuần/Triệt','Mệnh không chính tinh nhưng gặp Tuần/Triệt: phản thành có lợi, người khôn ngoan, có thể phát bất ngờ.','good'); else add('Mệnh vô chính diệu','Mệnh không có chính tinh: tính cách dễ ảnh hưởng hoàn cảnh, hay đổi hướng; nên ly hương lập nghiệp.','mid'); }
+  else if(mc.triet)add('Triệt đóng Mệnh','Tuổi trẻ lận đận, hay hỏng việc giữa chừng; ngoài 30 mới hanh thông.','bad');
+  else if(mc.tuan)add('Tuần đóng Mệnh','Tuổi trẻ chậm, sau 30 tốt dần lên.','mid');
+  return R;
+}
+function menhCore(ch){
+  const R=[]; const bm=ch.banMenh[1], cu=ch.cucHanh;
+  const r=rel(cu,bm);
+  const t={sinh:['Cục sinh Mệnh','Được hoàn cảnh nâng đỡ, làm ít được nhiều — thế tốt nhất.','good'],duocsinh:['Mệnh sinh Cục','Phải bỏ nhiều công sức cho hoàn cảnh, hao tâm lực; được việc nhưng mệt.','mid'],khac:['Cục khắc Mệnh','Hoàn cảnh chống lại mình, sức khỏe và vận số bị bào mòn — thế xấu nhất, phải sống điều độ, tránh mạo hiểm.','bad'],bikhac:['Mệnh khắc Cục','Tự thân phải chống chọi, thắng được hoàn cảnh nhưng vất vả.','mid'],hoa:['Mệnh Cục bình hòa','Bản mệnh và Cục cùng hành: ổn định, ít xung đột.','good']}[r];
+  R.push({t:t[0],txt:`Bản mệnh ${ch.banMenh[0]} (${bm}), ${CUC_NAME[ch.cuc]}. ${t[1]}`,k:t[2]});
+  const ce=CHI_HANH[ch.menh], r2=rel(ce,bm);
+  const t2={sinh:['Cung sinh Mệnh','good','Cung Mệnh ('+CHI[ch.menh]+', '+ce+') sinh bản mệnh: được đất, ở đúng chỗ của mình.'],duocsinh:['Mệnh sinh cung','mid','Bản mệnh sinh cung Mệnh ('+CHI[ch.menh]+', '+ce+'): hao tổn sức mình cho môi trường.'],khac:['Cung khắc Mệnh','bad','Cung Mệnh ('+CHI[ch.menh]+', '+ce+') khắc bản mệnh: môi trường gò bó, hay bất đắc chí.'],bikhac:['Mệnh khắc cung','mid','Bản mệnh khắc cung Mệnh ('+CHI[ch.menh]+', '+ce+'): phải tranh đấu mới có chỗ đứng.'],hoa:['Cung Mệnh bình hòa','good','Cung Mệnh ('+CHI[ch.menh]+') cùng hành bản mệnh: yên ổn.']}[r2];
+  R.push({t:t2[0],txt:t2[2],k:t2[1]});
+  const yangPal=ch.menh%2===0; const ok=(ch.duong&&yangPal)||(!ch.duong&&!yangPal);
+  R.push({t:ok?'Âm dương thuận lý':'Âm dương nghịch lý',txt:ok?'Người '+(ch.duong?'dương':'âm')+' Mệnh đóng cung '+(yangPal?'dương':'âm')+': mọi việc thuận chiều, ít bị cản.':'Người '+(ch.duong?'dương':'âm')+' Mệnh đóng cung '+(yangPal?'dương':'âm')+': hay gặp nghịch cảnh, làm gì cũng phải gấp đôi công sức.',k:ok?'good':'bad'});
+  const thanCung=ch.P[ch.than].name;
+  R.push({t:'Thân cư '+thanCung,txt:THAN_CU[thanCung],k:'mid'});
+  return R;
+}
+function ageAt(ch,y){return y-ch.lunar[2]+1;}
+function currentDH(ch,age){const d=ch.daihan.find(x=>age>=x.from&&age<=x.to);return d||null;}
+function analyzeDH(ch,d){
+  const c=ch.P[d.p], out=[];
+  const chinh=c.vcd?ch.P[mod(d.p+6,12)].stars.filter(s=>s.kind==='chinh'):c.stars.filter(s=>s.kind==='chinh');
+  out.push(`Đại hạn ${d.from}–${d.to} tuổi (năm ${ch.lunar[2]+d.from-1}–${ch.lunar[2]+d.to-1}) đi vào cung <b>${c.name}</b> (${canchiCung(c)}): chuyện ${CD[c.name]} sẽ là trọng tâm của 10 năm này.`);
+  chinh.forEach(s=>out.push(`<b>${s.name}</b> ${BR_NAME[s.bright]}${c.vcd?' (mượn từ cung xung)':''}: thời kỳ này ${INFO[s.name].menh[isBright(s.bright)?0:1]}.`));
+  const n=c.stars.filter(s=>NOTE[s.name]&&(BIGGOOD.includes(s.name)||SAT6.includes(s.name)||s.name==='Hóa Kỵ'||s.name==='Thiên Mã'||s.name==='Thiên Hình'));
+  if(n.length)out.push(n.map(s=>`<b>${s.name}</b>: ${NOTE[s.name].replace('{cd}','vận này')}`).join('; ')+'.');
+  if(c.triet)out.push('Đại hạn gặp Triệt: nửa đầu vận bị chặn, nửa sau mới thông.');
+  else if(c.tuan)out.push('Đại hạn gặp Tuần: đà tốt xấu đều giảm bớt.');
+  const lv=level(c.score);
+  out.push(['Đánh giá: vận tốt — nên chủ động mở rộng, đầu tư, nhận trách nhiệm lớn.','Đánh giá: vận trung bình — giữ vững là thắng, chọn lọc cơ hội.','Đánh giá: vận xấu — thu mình, tránh mạo hiểm tài chính, giữ sức khỏe và các mối quan hệ chính.'][lv]);
+  return out;
+}
+function analyzeYear(ch,Y){
+  const vc=mod(Y+6,10), vz=mod(Y+8,12), age=ageAt(ch,Y);
+  const th0=G_TIEUHAN[ch.yz%4], off=mod(vz-ch.yz,12);
+  const thP=mod(ch.male?th0+off:th0-off,12);
+  const dh=currentDH(ch,age);
+  const luuLoc=LOC[vc], luuKinh=mod(luuLoc+1,12), luuDa=mod(luuLoc-1,12), luuMa=G_MA[vz%4];
+  const luuHoa=HOA[vc].map((t,i)=>({name:'Lưu '+HOA_NAME[i],target:t,p:ch.pos[t]}));
+  const tp=tpOf(thP); const out=[]; let s=ch.P[thP].score*0.55+(dh?ch.P[dh.p].score:ch.P[ch.menh].score)*0.45;
+  out.push(`Năm ${CAN[vc]} ${CHI[vz]} ${Y}, đương số ${age} tuổi (tuổi âm). Tiểu hạn vào cung <b>${ch.P[thP].name}</b> (${CHI[thP]}) — điểm ${ch.P[thP].score}/100; ${dh?`đại hạn ở cung <b>${ch.P[dh.p].name}</b> (${dh.from}–${dh.to} tuổi)`:'chưa vào đại hạn đầu tiên (còn nhỏ, xem theo Mệnh)'}.`);
+  out.push(`Việc nổi bật trong năm: ${CD[ch.P[thP].name]}.`);
+  const lk=luuHoa[3], ll=luuHoa[0];
+  if(ll.p!==undefined&&tp.includes(ll.p)){s+=6;out.push(`<span class="tag-good">Tốt</span> Lưu Hóa Lộc (theo ${ll.target}) chiếu vào tiểu hạn: năm có lộc, có nguồn thu mới.`);}
+  if(lk.p!==undefined&&lk.p===thP){s-=9;out.push(`<span class="tag-bad">Xấu</span> Lưu Hóa Kỵ đóng ngay tiểu hạn (theo ${lk.target}): năm nhiều trục trặc, thị phi, việc chính dễ hỏng — cẩn thận giấy tờ, lời nói.`);}
+  else if(lk.p!==undefined&&tp.includes(lk.p)){s-=4;out.push(`<span class="tag-bad">Xấu</span> Lưu Hóa Kỵ chiếu tiểu hạn: có việc gây phiền lòng ở mảng ${CD[ch.P[lk.p].name]}.`);}
+  if(lk.p===ch.menh&&thP!==ch.menh){s-=3;out.push('Lưu Hóa Kỵ đóng cung Mệnh gốc: tâm lý nặng nề, dễ bị hiểu lầm.');}
+  if(luuKinh===thP||luuDa===thP){s-=5;out.push(`<span class="tag-bad">Xấu</span> Lưu ${luuKinh===thP?'Kình Dương':'Đà La'} đóng tiểu hạn: đề phòng va chạm, tai nạn, tranh chấp.`);}
+  if(luuLoc===thP){s+=5;out.push('<span class="tag-good">Tốt</span> Lưu Lộc Tồn đóng tiểu hạn: tiền vào đều, giữ được của.');}
+  if(luuMa===thP){out.push('Lưu Thiên Mã đóng tiểu hạn: năm hay đi lại, có thay đổi chỗ làm hoặc chỗ ở.');}
+  if(tp.includes(vz)){out.push(`Lưu Thái Tuế (${CHI[vz]}) chiếu tiểu hạn: năm có việc lớn, phải đứng mũi chịu sào.`);}
+  if(vz===ch.yz){s-=3;out.push('<span class="tag-bad">Xấu</span> Năm tuổi (phạm Thái Tuế): dễ biến động, thị phi; kiêng làm việc lớn vội vàng.');}
+  if(vz===mod(ch.yz+6,12)){s-=4;out.push('<span class="tag-bad">Xấu</span> Năm xung Thái Tuế: nhiều xáo trộn, đề phòng hao tài và đi lại.');}
+  if(G_TAMTAI[ch.yz%4].includes(vz)){s-=4;out.push(`<span class="tag-bad">Xấu</span> Phạm Tam Tai (năm ${G_TAMTAI[ch.yz%4].map(x=>CHI[x]).join(', ')}): hay gặp chuyện xui liên tiếp, kiêng khởi sự lớn.`);}
+  if([1,3,6,8].includes(age%9))out.push(`Tuổi ${age} phạm Kim Lâu: nếu định cưới hỏi hoặc xây nhà năm nay thì nên cân nhắc mượn tuổi hoặc dời năm.`);
+  const ts=ch.P[thP].trangsinh;
+  if(['Đế Vượng','Lâm Quan','Tràng Sinh'].includes(ts))out.push(`Tiểu hạn gặp ${ts}: sinh khí mạnh, dễ thành việc.`);
+  if(['Tuyệt','Tử','Bệnh'].includes(ts))out.push(`Tiểu hạn gặp ${ts}: sinh khí yếu, nên giữ sức khỏe.`);
+  s=Math.max(5,Math.min(97,Math.round(s)));
+  out.push(`<b>Kết luận năm ${Y}: ${label(s)} (${s}/100).</b> `+['Năm thuận, nên hành động, mở rộng.','Năm bình, làm vừa sức, tránh liều.','Năm xấu, giữ thủ, tránh đầu tư lớn, ký kết và đi xa không cần thiết.'][level(s)]);
+  return {Y,vc,vz,age,thP,dh,score:s,lines:out,luu:{loc:luuLoc,kinh:luuKinh,da:luuDa,ma:luuMa,hoa:luuHoa}};
+}
+function chartToText(ch,yr){
+  const i=ch.inp, L=[];
+  L.push(`Họ tên: ${i.name||'(không ghi)'}; giới tính: ${ch.male?'Nam':'Nữ'}`);
+  L.push(`Sinh: ${i.inputText}; quy đổi dương lịch ${ch.solar.join('/')}${ch.lateTy?' (sinh sau 23h, tính sang ngày hôm sau theo giờ Tý)':''}; âm lịch ngày ${ch.lunar[0]} tháng ${ch.lunar[1]}${ch.lunar[3]?' (nhuận)':''} năm ${CAN[ch.yc]} ${CHI[ch.yz]} (${ch.lunar[2]}); giờ ${CHI[ch.hz]}`);
+  L.push(`Tứ trụ: năm ${CAN[ch.yc]} ${CHI[ch.yz]}, tháng ${CAN[ch.monthCan]} ${CHI[ch.monthChi]}, ngày ${CAN[ch.dayCan]} ${CHI[ch.dayChi]}, giờ ${CAN[ch.hourCan]} ${CHI[ch.hz]}`);
+  L.push(`${ch.duong?'Dương':'Âm'} ${ch.male?'Nam':'Nữ'}; bản mệnh ${ch.banMenh[0]}; ${CUC_NAME[ch.cuc]}; Mệnh chủ ${ch.menhChu}; Thân chủ ${ch.thanChu}; Mệnh tại ${CHI[ch.menh]}, Thân cư ${ch.P[ch.than].name}`);
+  L.push('','12 cung (Chính tinh có độ sáng M=miếu V=vượng Đ=đắc B=bình H=hãm):');
+  for(let k=0;k<12;k++){const p=mod(ch.menh+k,12),c=ch.P[p];
+    const ci=c.stars.filter(s=>s.kind==='chinh').map(s=>`${s.name}(${s.bright})`).join(', ')||'Vô chính diệu';
+    const ph=c.stars.filter(s=>s.kind!=='chinh').map(s=>s.name).join(', ');
+    L.push(`- ${c.name} tại ${canchiCung(c)}${p===ch.than?' [Thân]':''}: chính tinh: ${ci}; phụ tinh: ${ph}; ${c.trangsinh}, ${c.bacsi}, ${c.thaitue}${c.tuan?'; Tuần':''}${c.triet?'; Triệt':''}; đại hạn ${c.dh}–${c.dh+9}; điểm tham khảo ${c.score}`);}
+  if(yr){L.push('',`Năm xem ${yr.Y} (${CAN[yr.vc]} ${CHI[yr.vz]}), tuổi âm ${yr.age}. Tiểu hạn tại cung ${ch.P[yr.thP].name} (${CHI[yr.thP]}). ${yr.dh?`Đại hạn hiện tại: cung ${ch.P[yr.dh.p].name} (${yr.dh.from}–${yr.dh.to} tuổi).`:''} Lưu Thái Tuế ${CHI[yr.vz]}; Lưu Lộc Tồn ${CHI[yr.luu.loc]}, Lưu Kình ${CHI[yr.luu.kinh]}, Lưu Đà ${CHI[yr.luu.da]}, Lưu Mã ${CHI[yr.luu.ma]}; ${yr.luu.hoa.map(h=>`${h.name} theo ${h.target} tại ${h.p!==undefined?CHI[h.p]:'?'}`).join(', ')}.`);}
+  const cc=[...menhCore(ch),...cachCuc(ch)].map(x=>x.t).join('; ');
+  L.push('',`Phần mềm nhận diện: ${cc}.`);
+  return L.join('\n');
+}
+/* ===== Giao diện ===== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const GRID={5:[1,1],6:[1,2],7:[1,3],8:[1,4],9:[2,4],10:[3,4],11:[4,4],0:[4,3],1:[4,2],2:[4,1],3:[3,1],4:[2,1]};
+const HOUR_LABEL=h=>{const z=INT((h+1)/2)%12;const s=mod(2*z-1,24);return `giờ ${CHI[z]} (${String(s).padStart(2,'0')}h–${String((s+2)%24).padStart(2,'0')}h)`;};
+let CH=null, SEL=0, YR=null, DHSEL=null;
+// form init
+(function(){
+  const d=$('#fD'),m=$('#fM'),h=$('#fH'),mi=$('#fMi');
+  for(let i=1;i<=31;i++)d.add(new Option(String(i).padStart(2,'0'),i));
+  for(let i=1;i<=12;i++)m.add(new Option('Tháng '+i,i));
+  for(let i=0;i<24;i++)h.add(new Option(String(i).padStart(2,'0')+' giờ',i));
+  for(let i=0;i<60;i+=5)mi.add(new Option(String(i).padStart(2,'0')+' phút',i));
+  $('#fView').value=new Date().getFullYear();
+  const upd=()=>{$('#hourHint').textContent='Thuộc '+HOUR_LABEL(+h.value)+(+h.value===23?' — tính sang ngày hôm sau':'');};
+  h.addEventListener('change',upd);
+  document.querySelectorAll('input[name=cal]').forEach(r=>r.addEventListener('change',()=>{$('#leapWrap').hidden=$('#calA').checked===false;}));
+  try{const s=JSON.parse(localStorage.getItem('tuvi-form')||'null');if(s){$('#fName').value=s.name||'';$('#g'+(s.g==='nu'?'Nu':'Nam')).checked=true;$(s.cal==='am'?'#calA':'#calD').checked=true;$('#leapWrap').hidden=s.cal!=='am';d.value=s.d;m.value=s.m;$('#fY').value=s.y;h.value=s.h;mi.value=s.mi;$('#fLeap').checked=!!s.leap;}}catch(e){}
+  if(!$('#fY').value){d.value=1;m.value=1;h.value=12;}
+  upd();
+})();
+$('#intake').addEventListener('submit',e=>{
+  e.preventDefault(); $('#err').textContent='';
+  const g=document.querySelector('input[name=g]:checked').value, cal=document.querySelector('input[name=cal]:checked').value;
+  const d=+$('#fD').value,m=+$('#fM').value,y=+$('#fY').value,h=+$('#fH').value,mi=+$('#fMi').value,leap=$('#fLeap').checked;
+  let vy=+$('#fView').value||new Date().getFullYear();
+  if(!y||y<1900||y>2100){$('#err').textContent='Nhập năm sinh từ 1900 đến 2100.';$('#fY').focus();return;}
+  let jd;
+  if(cal==='duong'){const [dd,mm,yy]=jdToDate(jdFromDate(d,m,y));if(dd!==d||mm!==m){$('#err').textContent=`Tháng ${m}/${y} không có ngày ${d}.`;return;}jd=jdFromDate(d,m,y);}
+  else{if(d>30){$('#err').textContent='Tháng âm lịch chỉ có tối đa 30 ngày.';return;}jd=lunar2jd(d,m,y,leap?1:0);if(!jd){$('#err').textContent=`Năm âm lịch ${y} không có tháng ${m} nhuận.`;return;}
+    const [l1,l2]=solar2lunar(...jdToDate(jd));if(l1!==d||l2!==m){$('#err').textContent=`Tháng ${m}${leap?' nhuận':''} âm lịch năm ${y} chỉ có 29 ngày.`;return;}}
+  if(vy<y)vy=y;
+  try{localStorage.setItem('tuvi-form',JSON.stringify({name:$('#fName').value,g,cal,d,m,y,h,mi,leap}));}catch(e){}
+  const inputText=`${d}/${m}/${y} ${cal==='am'?'âm lịch'+(leap?' (tháng nhuận)':''):'dương lịch'}, ${String(h).padStart(2,'0')}:${String(mi).padStart(2,'0')}`;
+  CH=buildChart({name:$('#fName').value.trim(),gender:g,jd,hour:h,minute:mi,viewYear:vy,inputText});
+  CH.viewYear=vy; SEL=CH.menh; DHSEL=null; AI.reset();
+  YR=analyzeYear(CH,vy);
+  renderAll();
+  $('#result').hidden=false;
+  $('#result').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+});
+document.getElementById('fullToggle').addEventListener('click',e=>{const c=$('#chart'),on=c.classList.toggle('full');e.currentTarget.setAttribute('aria-pressed',on);e.currentTarget.textContent=on?'Thu gọn lá số':'Xem lá số đầy đủ (vuốt ngang)';});
+function lvClass(s){return 'lv'+level(s);}
+function renderAll(){renderChart();renderTong();renderCung();renderHan();AI.render();}
+function renderChart(){
+  const ch=CH, el=$('#chart'); let h='<svg class="lines" viewBox="0 0 400 400" preserveAspectRatio="none" aria-hidden="true" id="lines"></svg>';
+  for(let p=0;p<12;p++){
+    const c=ch.P[p],[r,col]=GRID[p];
+    const chinh=c.stars.filter(s=>s.kind==='chinh');
+    const cat=c.stars.filter(s=>s.kind==='cat'), bad=c.stars.filter(s=>s.kind==='sat'), phu=c.stars.filter(s=>s.kind==='phu');
+    const st=s=>`<span class="${s.kind==='cat'?'g':s.kind==='sat'?'b':'n'}${s.name.startsWith('Hóa')?' hoa':''}">${s.name}</span>`;
+    const isTh=YR&&YR.thP===p;
+    h+=`<div class="cell${p===ch.menh?' menh':''}${c.tuan||c.triet?' tt-on':''}" role="button" tabindex="0" data-p="${p}" style="grid-row:${r};grid-column:${col}" aria-label="Cung ${c.name} tại ${CHI[p]}, ${label(c.score)}">
+      ${c.tuan||c.triet?`<span class="tt">${[c.tuan?'Tuần':'',c.triet?'Triệt':''].filter(Boolean).join(' · ')}</span>`:''}
+      <div class="c-top"><span>${CAN[c.can]} ${CHI[p]}</span><span class="c-dh">${c.dh}</span></div>
+      <div class="c-name">${c.name}${p===ch.than?'<span class="than">Thân</span>':''}<span class="c-score ${lvClass(c.score)}">${c.score}</span></div>
+      <div class="c-chinh">${chinh.length?chinh.map(s=>`<span class="el-${HANH[s.name]}">${s.name} <i>(${s.bright})</i></span>`).join(''):'<span class="c-vcd">Vô chính diệu</span>'}</div>
+      <div class="c-phu"><div>${cat.map(st).join('')}${phu.map(st).join('')}</div><div>${bad.map(st).join('')}</div></div>
+      <div class="c-foot"><span>${c.trangsinh}</span><span>${isTh?'<b style="color:var(--accent)">Tiểu hạn '+YR.Y+'</b>':'TH '+CHI[c.thYear]}</span></div>
+    </div>`;
+  }
+  const i=ch.inp;
+  h+=`<div class="center"><span class="seal" aria-hidden="true">紫<br>微</span><h2>${esc(i.name||'Lá số Tử Vi')}</h2>
+  <dl>
+   <dt class="opt">Dương lịch</dt><dd class="opt">${ch.solar[0]}/${ch.solar[1]}/${ch.solar[2]}${ch.lateTy?' (sau 23h)':''}</dd>
+   <dt>Âm lịch</dt><dd>${ch.lunar[0]}/${ch.lunar[1]}${ch.lunar[3]?' nhuận':''}/${ch.lunar[2]}</dd>
+   <dt>Năm</dt><dd>${CAN[ch.yc]} ${CHI[ch.yz]}</dd>
+   <dt class="opt">Tháng · Ngày</dt><dd class="opt">${CAN[ch.monthCan]} ${CHI[ch.monthChi]} · ${CAN[ch.dayCan]} ${CHI[ch.dayChi]}</dd>
+   <dt class="opt">Giờ</dt><dd class="opt">${CAN[ch.hourCan]} ${CHI[ch.hz]}</dd>
+   <dt class="opt">Âm dương</dt><dd class="opt">${ch.duong?'Dương':'Âm'} ${ch.male?'Nam':'Nữ'}</dd>
+   <dt>Bản mệnh</dt><dd>${ch.banMenh[0]}</dd>
+   <dt>Cục</dt><dd>${CUC_NAME[ch.cuc]}</dd>
+   <dt class="opt">Mệnh chủ</dt><dd class="opt">${ch.menhChu}</dd>
+   <dt class="opt">Thân chủ</dt><dd class="opt">${ch.thanChu}</dd>
+   <dt>Xem năm</dt><dd>${YR.Y} · ${YR.age} tuổi</dd>
+  </dl></div>`;
+  el.innerHTML=h;
+  el.querySelectorAll('.cell').forEach(c=>{const go=()=>{SEL=+c.dataset.p;selectTab('cung');renderCung();highlight();if(matchMedia('(max-width:1180px)').matches)document.querySelector('.panel').scrollIntoView({behavior:'smooth',block:'start'});};c.addEventListener('click',go);c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});});
+  highlight();
+}
+function highlight(){
+  const p=SEL, tp=[mod(p+4,12),mod(p+8,12),mod(p+6,12)];
+  document.querySelectorAll('.cell').forEach(c=>{const q=+c.dataset.p;c.classList.toggle('sel',q===p);c.classList.toggle('tp',tp.includes(q));});
+  const pt=q=>{const [r,c]=GRID[q];const cl=(v)=>Math.max(100,Math.min(300,v));return [cl((c-.5)*100),cl((r-.5)*100)];};
+  const [a,b,c,d]=[p,...tp].map(pt);
+  $('#lines').innerHTML=`<polygon points="${a} ${b} ${c}" fill="none" stroke="var(--accent)" stroke-width="1.4" vector-effect="non-scaling-stroke" opacity=".55"/><line x1="${a[0]}" y1="${a[1]}" x2="${d[0]}" y2="${d[1]}" stroke="var(--seal)" stroke-width="1.4" stroke-dasharray="5 4" vector-effect="non-scaling-stroke" opacity=".6"/>`;
+}
+function selectTab(t){document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));document.querySelectorAll('.tabpane').forEach(x=>x.hidden=x.id!=='tab-'+t);}
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>selectTab(b.dataset.tab)));
+function fillColor(s){return level(s)===0?'var(--good)':level(s)===1?'var(--gold)':'var(--bad)';}
+function renderTong(){
+  const ch=CH, mA=analyzePalace(ch,ch.menh);
+  const order=[...Array(12)].map((_,k)=>mod(ch.menh+k,12));
+  const sorted=[...order].sort((a,b)=>ch.P[b].score-ch.P[a].score);
+  const best=sorted.slice(0,3).map(p=>ch.P[p].name), worst=sorted.slice(-3).reverse().map(p=>ch.P[p].name);
+  const core=menhCore(ch), cc=cachCuc(ch);
+  const pill=k=>`<span class="pill ${k==='good'?'lv0':k==='bad'?'lv2':'lv1'}">${k==='good'?'Tốt':k==='bad'?'Xấu':'Lưu ý'}</span>`;
+  const chinhM=ch.P[ch.menh].stars.filter(s=>s.kind==='chinh').map(s=>`${s.name} ${BR_NAME[s.bright]}`).join(', ')||'vô chính diệu';
+  $('#tab-tong').innerHTML=`
+   <p class="lede">Mệnh tại ${CHI[ch.menh]} có ${chinhM}. ${mA.verdict}</p>
+   <p>Mạnh nhất ở <b>${best.join(', ')}</b>; yếu nhất ở <b>${worst.join(', ')}</b>. Năm ${YR.Y}: <b>${label(YR.score)}</b>.</p>
+   <h4 class="sec">Điểm 12 cung</h4>
+   <div class="bars">${order.map(p=>{const c=ch.P[p];return `<button class="bar" data-p="${p}"><span>${c.name}</span><span class="track"><span class="fill" style="width:${c.score}%;background:${fillColor(c.score)}"></span></span><span class="v" style="color:${fillColor(c.score)}">${c.score} · ${label(c.score)}</span></button>`;}).join('')}</div>
+   <h4 class="sec">Mệnh, Thân, Cục</h4>
+   <ul class="items">${core.map(x=>`<li>${pill(x.k)}<span><b>${x.t}.</b> ${x.txt}</span></li>`).join('')}</ul>
+   <h4 class="sec">Cách cục nhận diện</h4>
+   ${cc.length?`<ul class="items">${cc.map(x=>`<li>${pill(x.k)}<span><b>${x.t}.</b> ${x.txt}</span></li>`).join('')}</ul>`:'<p class="hint">Không có cách cục đặc biệt; luận theo từng cung.</p>'}`;
+  $('#tab-tong').querySelectorAll('.bar').forEach(b=>b.addEventListener('click',()=>{SEL=+b.dataset.p;selectTab('cung');renderCung();highlight();}));
+}
+function renderCung(){
+  const ch=CH,p=SEL,a=analyzePalace(ch,p),c=ch.P[p];
+  const order=[...Array(12)].map((_,k)=>mod(ch.menh+k,12));
+  $('#tab-cung').innerHTML=`<div class="cungpick">${order.map(q=>`<button data-p="${q}" aria-pressed="${q===p}">${ch.P[q].name}</button>`).join('')}</div>
+   <div class="verdict-head"><h3>Cung ${c.name}</h3><span class="hint">${CAN[c.can]} ${CHI[p]} · ${c.trangsinh} · đại hạn ${c.dh}–${c.dh+9} tuổi</span><span class="pill ${lvClass(a.score)}">${a.label} · ${a.score}/100</span></div>
+   <ul class="lines">${a.lines.map(l=>`<li>${l}</li>`).join('')}</ul>
+   <div class="final ${lvClass(a.score)}">${a.verdict}</div>`;
+  $('#tab-cung').querySelectorAll('.cungpick button').forEach(b=>b.addEventListener('click',()=>{SEL=+b.dataset.p;renderCung();highlight();}));
+}
+function renderHan(){
+  const ch=CH, cur=YR.dh, sel=DHSEL||cur||ch.daihan[0];
+  const lines=analyzeDH(ch,sel), sc=ch.P[sel.p].score;
+  $('#tab-han').innerHTML=`
+   <h4 class="sec">Năm ${YR.Y}</h4>
+   <div class="yearbar"><label for="vy" class="hint">Đổi năm xem</label><input id="vy" type="number" value="${YR.Y}" min="${ch.lunar[2]}" max="2150"><button class="btn ghost" id="vyGo" type="button">Xem năm này</button><span class="pill ${lvClass(YR.score)}">${label(YR.score)} · ${YR.score}/100</span></div>
+   <ul class="lines">${YR.lines.map(l=>`<li>${l}</li>`).join('')}</ul>
+   <h4 class="sec">Đại hạn 10 năm</h4>
+   <div class="dh-row">${ch.daihan.slice(0,10).map(d=>`<button data-k="${d.from}" class="${cur&&cur.from===d.from?'now':''}" aria-pressed="${sel.from===d.from}" style="border-bottom:3px solid ${fillColor(ch.P[d.p].score)}"><b>${d.from}–${d.to}</b>${ch.P[d.p].name}</button>`).join('')}</div>
+   <div class="verdict-head"><h3 style="font-size:20px">${sel.from}–${sel.to} tuổi${cur&&cur.from===sel.from?' (hiện tại)':''}</h3><span class="pill ${lvClass(sc)}">${label(sc)} · ${sc}/100</span></div>
+   <ul class="lines">${lines.map(l=>`<li>${l}</li>`).join('')}</ul>`;
+  $('#tab-han').querySelectorAll('.dh-row button').forEach(b=>b.addEventListener('click',()=>{DHSEL=ch.daihan.find(d=>d.from===+b.dataset.k);renderHan();}));
+  const go=()=>{let v=+$('#vy').value;if(!v||v<ch.lunar[2])return;CH.viewYear=v;YR=analyzeYear(CH,v);DHSEL=null;AI.reset();renderChart();renderTong();renderHan();AI.render();};
+  $('#vyGo').addEventListener('click',go);$('#vy').addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+}
+/* ===== Thầy luận (miễn phí, chạy ngay trên trang) ===== */
+const TRAIT={'Văn Xương':'học nhanh, giỏi chữ nghĩa','Văn Khúc':'ăn nói có duyên, có khiếu nghệ thuật','Tả Phù':'giỏi phối hợp, được người giúp','Hữu Bật':'giỏi phối hợp, được người giúp','Thiên Khôi':'có khí chất, hay gặp quý nhân','Thiên Việt':'có khí chất, hay gặp quý nhân','Lộc Tồn':'cẩn thận, chặt chẽ chuyện tiền','Hóa Lộc':'khéo kiếm tiền, được lòng người','Hóa Quyền':'thích nắm quyền, quyết đoán','Hóa Khoa':'trọng danh dự và học thức','Hóa Kỵ':'hay nghĩ tiêu cực, dễ bị hiểu lầm','Kình Dương':'nóng nảy, thẳng đến mức va chạm','Đà La':'chậm mà lì, hay ôm việc','Hỏa Tinh':'nóng nhanh nguội nhanh','Linh Tinh':'hay lo ngầm, bồn chồn','Địa Không':'suy nghĩ khác người, hay lý tưởng hóa','Địa Kiếp':'liều, thích mạo hiểm','Đào Hoa':'có duyên, dễ thu hút người khác giới','Thiên Riêu':'ham vui, lãng mạn','Thiên Hình':'nghiêm khắc, nguyên tắc','Cô Thần':'thích một mình','Quả Tú':'thích một mình','Thiên Mã':'năng động, thích đi lại','Hoa Cái':'chuộng hình thức, có khiếu thẩm mỹ'};
+const ADVICE={'Mệnh':'Rèn tính kiên nhẫn, không quyết định lúc nóng giận; tự lực là chính, đừng trông chờ người khác.','Phụ Mẫu':'Giữ hòa khí với cha mẹ và cấp trên, nhún một chút để được việc.','Phúc Đức':'Năng làm việc thiện, giữ tâm an, tránh xa chỗ thị phi.','Điền Trạch':'Mua bán nhà đất phải xem kỹ giấy tờ, không bán tháo, không đứng tên hộ.','Quan Lộc':'Theo một nghề lâu dài, học thêm chuyên môn; chưa chắc chỗ mới thì đừng nhảy việc.','Nô Bộc':'Không bảo lãnh, không hùn vốn với người chưa hiểu rõ; giữ khoảng cách với bạn xấu.','Thiên Di':'Đi xa cẩn thận giao thông, giấy tờ; ra ngoài bớt khoe khoang.','Tật Ách':'Khám sức khỏe định kỳ, chú ý các bộ phận đã nêu; ăn ngủ điều độ.','Tài Bạch':'Lập quỹ dự phòng, không đầu cơ, không cho vay lớn; có tiền nên chuyển thành tài sản.','Tử Tức':'Dành thời gian cho con, dạy con bằng gương hơn bằng lời.','Phu Thê':'Đừng vội cưới; trong hôn nhân bớt cái tôi, nói chuyện thẳng trước khi giận.','Huynh Đệ':'Rõ ràng chuyện tiền bạc, tài sản với anh chị em.'};
+const TOPICS=[
+ {k:'Tài Bạch',label:'Tiền bạc, làm giàu',re:/tiền|tài|giàu|kinh doanh|buôn|đầu tư|thu nhập|lương|nợ/i},
+ {k:'Quan Lộc',label:'Công việc, sự nghiệp',re:/công việc|sự nghiệp|thăng|nghề|việc làm|chức|nhảy việc|khởi nghiệp/i},
+ {k:'Phu Thê',label:'Tình duyên, cưới hỏi',re:/vợ|chồng|cưới|hôn nhân|người yêu|tình|duyên|kết hôn|ly hôn/i,kimlau:true},
+ {k:'Điền Trạch',label:'Mua nhà, đất đai',re:/nhà|đất|bất động sản|xây|chung cư/i,kimlau:true},
+ {k:'Tật Ách',label:'Sức khỏe',re:/sức khỏe|bệnh|ốm|mổ|khỏe/i},
+ {k:'Tử Tức',label:'Con cái',re:/con cái|có con|sinh con|đứa con|\bcon\b/i},
+ {k:'Thiên Di',label:'Đi xa, xuất ngoại',re:/đi xa|xuất ngoại|nước ngoài|du học|chuyển nhà|chuyển chỗ|định cư/i},
+ {k:'Nô Bộc',label:'Bạn bè, hợp tác',re:/bạn|đối tác|hợp tác|hùn|nhân viên|cấp dưới/i},
+ {k:'Phụ Mẫu',label:'Cha mẹ, cấp trên',re:/cha|mẹ|bố|cấp trên|sếp/i},
+ {k:'Huynh Đệ',label:'Anh chị em',re:/anh chị|anh em|chị em|anh trai|em gái/i}];
+const posOfCung=(ch,name)=>ch.P.findIndex(c=>c.name===name);
+function topicYears(ch,cung,from,n,kimlau){
+  const cp=posOfCung(ch,cung), res=[];
+  for(let Y=from;Y<from+n;Y++){const y=analyzeYear(ch,Y);let s=y.score;const tp=tpOf(y.thP);
+    if(tp.includes(cp))s+=6; if(y.thP===cp)s+=3;
+    const L=y.luu.hoa[0].p,K=y.luu.hoa[3].p;
+    if(L!==undefined&&tpOf(cp).includes(L))s+=5; if(K===cp)s-=8;else if(K!==undefined&&tpOf(cp).includes(K))s-=3;
+    if(y.luu.loc===cp)s+=3; if(y.luu.kinh===cp||y.luu.da===cp)s-=4;
+    const kl=kimlau&&[1,3,6,8].includes(y.age%9);
+    res.push({Y,s:Math.max(5,Math.min(97,Math.round(s))),age:y.age,can:CAN[y.vc]+' '+CHI[y.vz],kl});}
+  return res;
+}
+function monthsOf(ch,yr){
+  const dq=mod(yr.vz-(ch.m-1)+ch.hz,12), out=[];
+  for(let i=1;i<=12;i++){const p=mod(dq+i-1,12);let s=ch.P[p].score;
+    if(yr.luu.hoa[3].p===p)s-=8; if(yr.luu.hoa[0].p===p)s+=6; if(yr.luu.kinh===p||yr.luu.da===p)s-=5; if(yr.luu.loc===p)s+=4;
+    out.push({i,p,s});}
+  return out;
+}
+const lvWord=s=>['tốt','bình','xấu'][level(s)];
+function strip(h){return h.replace(/<[^>]+>/g,'');}
+function fullReading(ch,yr){
+  const nm=ch.inp.name?ch.inp.name.trim().split(/\s+/).pop():'bạn';
+  const P=ch.P, M=P[ch.menh], H=[];
+  const sec=(t,s,body)=>H.push(`<h3>${t}</h3>${s!=null?`<p><strong>Đánh giá: ${label(s)}</strong> (${s}/100)</p>`:''}${body}`);
+  const p=t=>`<p>${t}</p>`, ul=a=>a.length?`<ul>${a.map(x=>`<li>${x}</li>`).join('')}</ul>`:'';
+  const ordered=[...Array(12)].map((_,k)=>mod(ch.menh+k,12));
+  const sorted=[...ordered].sort((a,b)=>P[b].score-P[a].score);
+  const core=menhCore(ch), cc=cachCuc(ch);
+  const goodCC=cc.filter(x=>x.k==='good'), badCC=cc.filter(x=>x.k==='bad');
+  const chinhM=(M.vcd?P[mod(ch.menh+6,12)]:M).stars.filter(s=>s.kind==='chinh');
+  // 1. Tổng quát
+  const intro=`Thầy xem lá số của ${esc(nm)}: tuổi ${CAN[ch.yc]} ${CHI[ch.yz]}, ${ch.duong?'dương':'âm'} ${ch.male?'nam':'nữ'}, Mệnh đóng ${CHI[ch.menh]}${M.vcd?' vô chính diệu':' có '+chinhM.map(s=>s.name+' '+BR_NAME[s.bright]).join(', ')}, ${CUC_NAME[ch.cuc]}, bản mệnh ${ch.banMenh[0]}.`;
+  const verdict=VERDICT['Mệnh'][level(M.score)];
+  const strong=sorted.slice(0,3).map(x=>P[x].name), weak=sorted.slice(-3).reverse().map(x=>P[x].name);
+  sec('Lời phán tổng quát',M.score,p(intro)+p(`Thầy nói thẳng: ${verdict}`)+p(`Đời ${esc(nm)} mạnh nhất ở ${strong.join(', ')}; yếu nhất ở ${weak.join(', ')} — đây là những mảng phải giữ gìn cả đời.`)+(goodCC.length?p(`Cách tốt trong lá số: ${goodCC.map(x=>x.t).join(', ')}.`):'')+(badCC.length?p(`Cách xấu cần biết: ${badCC.map(x=>x.t).join(', ')}.`):''));
+  // 2. Mệnh Thân Cục
+  sec('Mệnh – Thân – Cục',null,ul(core.map(x=>`<strong>${x.t}:</strong> ${x.txt.replace(x.t+': ','')}`))+ul(cc.map(x=>`<strong>${x.t}</strong> (${x.k==='good'?'tốt':x.k==='bad'?'xấu':'lưu ý'}): ${x.txt}`)));
+  // 3. Tính cách
+  const tr=[];chinhM.forEach(s=>tr.push(`${s.name} ${BR_NAME[s.bright]}${M.vcd?' (mượn từ Thiên Di)':''}: ${INFO[s.name].menh[isBright(s.bright)?0:1]}.`));
+  const ex=[...new Set(M.stars.map(s=>TRAIT[s.name]).filter(Boolean))];
+  if(ex.length)tr.push(`Các sao khác ở Mệnh cho thấy thêm: ${ex.join('; ')}.`);
+  const T=P[ch.than]; if(ch.than!==ch.menh){const tc=T.stars.filter(s=>s.kind==='chinh');if(tc.length)tr.push(`Thân cư ${T.name} có ${tc.map(s=>s.name+' '+BR_NAME[s.bright]).join(', ')}: từ khoảng 30 tuổi trở đi tính cách ngả về hướng ${tc.map(s=>INFO[s.name].menh[isBright(s.bright)?0:1].split(';')[0]).join('; ')}.`);}
+  sec('Tính cách',null,ul(tr));
+  // 4-7 cung chính
+  const block=(title,cung)=>{const pp=posOfCung(ch,cung),a=analyzePalace(ch,pp);sec(title,a.score,ul(a.lines)+p(`<strong>Kết luận:</strong> ${a.verdict}`));};
+  block('Công danh sự nghiệp','Quan Lộc');
+  block('Tiền bạc','Tài Bạch');
+  { const d=posOfCung(ch,'Điền Trạch'); H.push(p(`Về nhà đất (Điền Trạch ${P[d].score}/100): ${VERDICT['Điền Trạch'][level(P[d].score)]}`)); }
+  block('Tình duyên, hôn nhân','Phu Thê');
+  block('Sức khỏe','Tật Ách');
+  // 8. còn lại
+  const rest=['Phụ Mẫu','Phúc Đức','Điền Trạch','Nô Bộc','Thiên Di','Tử Tức','Huynh Đệ'].map(c=>{const pp=posOfCung(ch,c),cc2=P[pp],chs=(cc2.vcd?P[mod(pp+6,12)]:cc2).stars.filter(s=>s.kind==='chinh');
+    return `<strong>${c}</strong> — ${label(cc2.score)} (${cc2.score}): ${cc2.vcd?'vô chính diệu, mượn ':''}${chs.map(s=>s.name+' '+BR_NAME[s.bright]).join(', ')}. ${VERDICT[c][level(cc2.score)]}`;});
+  sec('Các cung còn lại',null,ul(rest));
+  // 9. đại hạn
+  const age=yr.age, idx=ch.daihan.findIndex(d=>age>=d.from&&age<=d.to);
+  const list=(idx<0?ch.daihan.slice(0,3):ch.daihan.slice(idx,idx+3));
+  sec('Đại hạn hiện tại và hai đại hạn kế tiếp',null,list.map((d,i)=>`<h4>${i===0&&idx>=0?'Đang đi: ':''}${d.from}–${d.to} tuổi (${ch.lunar[2]+d.from-1}–${ch.lunar[2]+d.to-1}) · ${P[d.p].name} · ${label(P[d.p].score)}</h4>${ul(analyzeDH(ch,d).slice(1))}`).join(''));
+  // 10. năm
+  const ms=monthsOf(ch,yr), mb=[...ms].sort((a,b)=>b.s-a.s);
+  const mg=mb.slice(0,3).map(x=>`tháng ${x.i} (${P[x.p].name})`), mx=mb.slice(-3).reverse().map(x=>`tháng ${x.i} (${P[x.p].name})`);
+  sec(`Năm ${yr.Y} (${CAN[yr.vc]} ${CHI[yr.vz]})`,yr.score,ul(yr.lines.slice(0,-1))+p(`Theo phép Đẩu Quân, tháng âm lịch thuận nhất: ${mg.join(', ')} — việc lớn nên làm vào các tháng này. Tháng cần giữ mình: ${mx.join(', ')} — tránh ký kết, vay mượn, đi xa không cần thiết.`)+p(strip(yr.lines[yr.lines.length-1])));
+  // 11. dặn
+  const adv=sorted.slice(-3).map(x=>ADVICE[P[x].name]);
+  if(M.stars.some(s=>s.name==='Hóa Kỵ'))adv.push('Mệnh có Hóa Kỵ: cẩn trọng lời nói, giấy tờ; đừng để nghi ngờ làm hỏng quan hệ.');
+  if(M.stars.some(s=>['Kình Dương','Hỏa Tinh'].includes(s.name)))adv.push('Mệnh có sát tinh tính nóng: đếm đến mười trước khi phản ứng, tránh xung đột tay chân.');
+  if(M.stars.some(s=>['Địa Không','Địa Kiếp'].includes(s.name)))adv.push('Mệnh gặp Không Kiếp: không đầu cơ, không đặt cược lớn; làm ăn chắc chậm sẽ bền.');
+  adv.push(`Thế mạnh của ${esc(nm)} nằm ở ${strong.slice(0,2).map(c=>CD[c]).join(' và ')} — dồn sức vào đó sẽ bù được cho mảng yếu.`);
+  sec('Lời dặn của thầy',null,ul(adv)+p('<em>Lời luận dựa trên Tử Vi Đẩu Số, chỉ mang tính tham khảo. Số mệnh do mình làm chủ.</em>'));
+  return H.join('');
+}
+function answer(ch,yr,q){
+  const t=TOPICS.find(x=>x.re.test(q))||(/năm nào|khi nào|bao giờ|năm tốt/i.test(q)?{k:null}:null);
+  if(!t)return null;
+  const from=Math.max(yr.Y,ch.lunar[2]); const out=[];
+  if(t.k){const pp=posOfCung(ch,t.k),a=analyzePalace(ch,pp);
+    out.push(`<p><strong>${t.k}: ${a.label} (${a.score}/100).</strong> ${a.verdict}</p>`);
+    out.push('<ul>'+a.lines.slice(0,3).map(l=>`<li>${l}</li>`).join('')+'</ul>');
+    const ys=topicYears(ch,t.k,from,10,t.kimlau).sort((a,b)=>b.s-a.s);
+    const best=ys.filter(y=>!y.kl).slice(0,3), worst=ys.slice(-2).reverse();
+    out.push(`<p><strong>10 năm tới (${from}–${from+9}), năm thuận nhất cho việc này:</strong> ${best.map(y=>`${y.Y} ${y.can} (${y.age} tuổi)`).join(', ')}.${t.kimlau?' Đã loại các năm phạm Kim Lâu.':''}</p>`);
+    out.push(`<p><strong>Năm nên tránh:</strong> ${worst.map(y=>`${y.Y} ${y.can}`).join(', ')}.</p>`);
+    out.push(`<p>${ADVICE[t.k]}</p>`);
+  }else{const ys=[];for(let Y=from;Y<from+10;Y++){const y=analyzeYear(ch,Y);ys.push(y);}ys.sort((a,b)=>b.score-a.score);
+    out.push(`<p><strong>Năm tốt nhất trong 10 năm tới:</strong> ${ys.slice(0,3).map(y=>`${y.Y} (${label(y.score)}, ${y.score})`).join(', ')}.</p><p><strong>Năm xấu nhất:</strong> ${ys.slice(-3).reverse().map(y=>`${y.Y} (${label(y.score)}, ${y.score})`).join(', ')}.</p><p>Muốn biết năm hợp cho việc cụ thể, hãy hỏi kèm việc đó, ví dụ "năm nào hợp mua nhà".</p>`);}
+  return out.join('');
+}
+const AI={qa:[],reset(){this.qa=[];},
+  render(){
+    const el=$('#tab-ai'); if(!el||!CH)return;
+    el.innerHTML=`<div class="ai-out">${fullReading(CH,YR)}</div>
+     <h4 class="sec">Hỏi thêm thầy</h4>
+     <div class="cungpick" id="qchips">${['Năm nào hợp mua nhà?','Năm nào nên cưới?','Bao giờ tiền bạc khá lên?','Công việc năm nào thăng tiến?','Sức khỏe cần lưu ý gì?','Năm nào tốt nhất?'].map(x=>`<button type="button">${x}</button>`).join('')}</div>
+     <div class="ask"><input id="askIn" placeholder="Ví dụ: năm nào hợp khởi nghiệp?" aria-label="Câu hỏi cho thầy"><button class="btn" id="askGo" type="button">Hỏi thầy</button></div>
+     <div class="qa" id="qa">${this.qa.map(x=>`<div><div class="q">${esc(x.q)}</div><div class="ai-out">${x.a}</div></div>`).join('')}</div>`;
+    const ask=q=>{q=q.trim();if(!q)return;const a=answer(CH,YR,q)||`<p>Thầy chưa rõ bạn hỏi về mảng nào. Hãy hỏi kèm một chủ đề: ${TOPICS.map(t=>t.label.toLowerCase()).join(', ')}.</p>`;this.qa.unshift({q,a});this.render();const f=$('#qa');if(f)f.scrollIntoView({block:'nearest'});};
+    $('#askGo').onclick=()=>ask($('#askIn').value);$('#askIn').onkeydown=e=>{if(e.key==='Enter')ask(e.target.value);};
+    el.querySelectorAll('#qchips button').forEach(b=>b.onclick=()=>ask(b.textContent));
+  }};
+/* ===== Ủng hộ (chủ trang điền thông tin ở đây) ===== */
+const DONATE={
+  qrImage:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWgAAAFoAQAAAABSnlx4AAADx0lEQVR42u1bTc6kNhSswi0Z6VuYG5gb5AjdOVgEnZvkJEMfYW4Ay6xiZgUaoLKw+1Pn02R+NJ7pRLJXLSjRqOz3Xr0fKHzDqlDQBV3QBf1v6wSA8ad/37iA/cQDIDrq1wvgJv9nHe+rMPgUdCdJI+CmerXaKwCi+rNGwAVYSToKg/nQV/ICYG6AnWYnBVx5ubU+xGus/vns8TOP3ArfX4d2wc1uMwcoUuoBf2vKif2PoOcGdjGbzE6IfXe9ALMPhcHs6AvQAsCHGHR7oH8TsB+9z1kaAKe/yBOA34Gr2AOIvspIW+E7H/pKkm20BuzmoCCK3YDJB2AlU3AoDOZAK67RBbcAAA8IHTUAPrhg0/3C4FPQ7KM9kKzteoIqkOwBTCRZYz2JZGEwlzWQGrxGAGttNvCA1He8xFTgbiGFwQzo6Hr6TgN8cNICUBLiNT/CBcDoiMjXZ7fZ3uRUducL5FxFek1+agLMpmpPzziP0NzYBfupMJjPGu51CKcAs4EHBXQ9zgPgFACY7Y01vD3Kn3yFwncuXzXAjy44LckxAZ2G8wgAVtp4UJ/YncLgd1iDl6TFbAAgdD0Q+YbVBqrw/fPRVIwN7wZMLVxYa7OpAmLjbDq/b2Dn2nw0RSnl8z7x4PsAwG7pao9uOEsKbrELqAPFGrJ5e/XwGuGkxWw8KKhHigCwqepT+H4eemKLmTVgdrOnDtv51sJpWWmPwmBO79NpgB+jCn3M04CYF5uDxfs8MTYAgJO0PLqwAT64ANhUyfi/7c6P7Ox9R/ZP9Z1Gr4mki6r/3tKcfIDVbA+VGnW2OkTSle2ouVlpPlYggI7v4G9tM631spp4tqtv+rvCdyalJI1+dAp2MVJUodElvSqlkhfnzIv75O0Xqy2Wo7u+G+AV4LTYokx/FHr7bJSKu9N3aZhogZEOSnHAKFUyYFTytIzWgK5PebHVlpozcfkAt9jFHKVK9KzIHTvJAoIP68t2MgJ1FfvzH60XMNeowDL3mA/dke3ExgXY1eoQAVyla+snknXK3QqDGbWPpOAUC0IUYnz28eJijqJ9nhcbXuPAfXfuyjTFBhSllBN9n6PGzNpI2kmmOWoXYJP2KQxmQ9/iHLWTFuwnUMJv7HE7j3Mzk/XO0wN6eJyjPj71p0fhO5/2ua+5CevLitQh63DD9EvwAevLFmsbhcHn7Y4LDe22q8L9Kx2P2U+0817tVVGmX0C3X0XzYzc/OGkzOigAXSoTpUpGUUr5tY8LVnFSAlKcJULqCRTt8xPRr1Uilu+LC7qgCzoT+m/hbqSGZ8M/zwAAAABJRU5ErkJggg==',   // ảnh QR ngân hàng dạng data:image/png;base64,...
+  bank:'Vietcombank',      // Tên ngân hàng
+  account:'9366316910',   // Số tài khoản
+  owner:'NGUYEN VAN QUY',     // Chủ tài khoản
+  note:'Ung ho tu vi' // Nội dung chuyển khoản gợi ý
+};
+(function(){
+  const el=document.getElementById('donate');
+  if(!DONATE.qrImage)return;
+  const rows=[['Ngân hàng',DONATE.bank],['Số tài khoản',DONATE.account],['Chủ tài khoản',DONATE.owner],['Nội dung',DONATE.note]].filter(r=>r[1]);
+  el.innerHTML=`<img id="donateQR" alt="Mã QR chuyển khoản ủng hộ${DONATE.bank?' — '+esc(DONATE.bank):''}">
+   <div><h3 id="donateTitle">Ủng hộ người làm trang</h3>
+   <p>Nếu bạn thấy lá số hữu ích và hài lòng, có thể ủng hộ một chút để trang duy trì và luận ngày càng kỹ hơn. Quét mã bằng ứng dụng ngân hàng bất kỳ. Ủng hộ hoàn toàn tự nguyện, mọi tính năng vẫn miễn phí.</p>
+   ${rows.length?`<dl>${rows.map(r=>`<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join('')}</dl>`:''}
+   ${DONATE.account?'<button class="btn ghost" type="button" id="copyAcc">Sao chép số tài khoản</button> <span class="hint" id="copyMsg" role="status"></span>':''}</div>`;
+  document.getElementById('donateQR').src=DONATE.qrImage;
+  el.hidden=false;
+  const b=document.getElementById('copyAcc');
+  if(b)b.onclick=async()=>{const m=document.getElementById('copyMsg');try{await navigator.clipboard.writeText(DONATE.account);m.textContent='Đã sao chép.';}catch(e){m.textContent='Không sao chép được, hãy chép tay: '+DONATE.account;}};
+})();
+</script></body></html>
