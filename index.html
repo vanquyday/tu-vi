@@ -74,6 +74,7 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:700;line-height:1.2;margin:0}
 .cell{position:relative;z-index:2;background:var(--surface);border:1px solid var(--line);padding:7px 8px 6px;cursor:pointer;display:flex;flex-direction:column;gap:3px;text-align:left;font-size:11.5px;line-height:1.35;transition:background .15s}
 .cell:hover{background:var(--surface2)}
 .cell.tp{background:var(--accent-soft)}
+.cell.nh{background:var(--surface2);box-shadow:inset 0 0 0 1.5px var(--gold)}
 .cell.sel{box-shadow:inset 0 0 0 2px var(--accent);background:var(--accent-soft)}
 .c-top{display:flex;justify-content:space-between;align-items:center;gap:4px;color:var(--muted);font-size:11px}
 .c-dh{font-family:var(--serif);font-weight:700;font-size:14px;color:var(--ink)}
@@ -247,7 +248,7 @@ footer.site p{margin:0 0 6px;max-width:90ch}
       <div>
         <div class="chart-scroll"><div class="chart" id="chart"></div></div>
         <button class="btn ghost mtoggle" type="button" id="fullToggle" aria-pressed="false">Xem lá số đầy đủ (vuốt ngang)</button>
-        <div class="legend"><span><b class="el-Kim">●</b> Kim</span><span><b class="el-Mộc">●</b> Mộc</span><span><b class="el-Thủy">●</b> Thủy</span><span><b class="el-Hỏa">●</b> Hỏa</span><span><b class="el-Thổ">●</b> Thổ</span><span>Cột trái: cát tinh · cột phải: sát/bại tinh</span><span>Số góc phải: tuổi bắt đầu đại hạn</span></div>
+        <div class="legend"><span><b class="el-Kim">●</b> Kim</span><span><b class="el-Mộc">●</b> Mộc</span><span><b class="el-Thủy">●</b> Thủy</span><span><b class="el-Hỏa">●</b> Hỏa</span><span><b class="el-Thổ">●</b> Thổ</span><span>Cột trái: cát tinh · cột phải: sát/bại tinh</span><span>Số góc phải: tuổi bắt đầu đại hạn</span><span>Chọn một cung: <b style="color:var(--accent)">tím</b> tam hợp · <b style="color:var(--seal)">đỏ</b> xung chiếu · <b style="color:var(--gold)">vàng</b> nhị hợp</span></div>
       </div>
       <div class="panel">
         <div class="tabs" role="tablist">
@@ -392,6 +393,24 @@ function sv(s,chi){
   return W[s.name]||0;
 }
 const tpOf=p=>[p,mod(p+4,12),mod(p+8,12),mod(p+6,12)];
+const nhiHop=p=>mod(1-p,12);
+const GIAP=[['Tả Phù','Hữu Bật',0.6,'Tả Hữu giáp','{cd} được hai bên nâng đỡ, làm gì cũng có người phụ'],['Văn Xương','Văn Khúc',0.5,'Xương Khúc giáp','{cd} thuận giấy tờ, học hành, có tiếng'],['Thiên Khôi','Thiên Việt',0.5,'Khôi Việt giáp','{cd} có quý nhân kề cận'],['Thái Dương','Thái Âm',0.5,'Nhật Nguyệt giáp','{cd} sáng sủa, được che chở'],['Kình Dương','Đà La',-0.6,'Kình Đà giáp','{cd} bị kẹp giữa hai sát tinh: hay bị chèn ép, giữ được mà vất vả'],['Địa Không','Địa Kiếp',-0.7,'Không Kiếp giáp','{cd} dễ hao tán, đổ vỡ bất ngờ'],['Hỏa Tinh','Linh Tinh',-0.5,'Hỏa Linh giáp','{cd} xung quanh hay có biến cố, nóng nảy'],
+ ['Lộc Tồn','Hóa Lộc',0.7,'Song Lộc giáp','{cd} có hai nguồn lộc kẹp hai bên, tiền bạc vây quanh'],
+ ['Hóa Lộc','Hóa Quyền',0.6,'Lộc Quyền giáp','{cd} được lộc và quyền kẹp hai bên, dễ đắc thế'],
+ ['Hóa Quyền','Hóa Khoa',0.5,'Quyền Khoa giáp','{cd} có danh có quyền vây quanh'],
+ ['Hóa Lộc','Hóa Khoa',0.5,'Lộc Khoa giáp','{cd} có lộc có danh kề bên'],
+ ['Tử Vi','Thiên Phủ',0.6,'Tử Phủ giáp','{cd} được hai đế tinh che chở, có thế lực nâng đỡ'],
+ ['Kình Dương','Hóa Kỵ',-0.7,'Kình Kỵ giáp','{cd} bị sát tinh và Kỵ kẹp: hay gặp tai ương, thị phi'],
+ ['Đà La','Hóa Kỵ',-0.7,'Đà Kỵ giáp','{cd} bị Đà La và Kỵ kẹp: dây dưa, uất ức, việc kéo dài'],
+ ['Thiên Hình','Hóa Kỵ',-0.5,'Hình Kỵ giáp','{cd} dễ vướng pháp lý, kiện tụng'],
+ ['Thiên Khốc','Thiên Hư',-0.3,'Khốc Hư giáp','{cd} hay có chuyện buồn phiền, hư hao']];
+const TH_GROUP=[[8,0,4],[5,9,1],[2,6,10],[11,3,7]], TH_HANH=['Thủy','Kim','Hỏa','Mộc'], XUNG_GROUP=[[0,3,6,9],[1,4,7,10],[2,5,8,11]];
+function giapOf(P,p){
+  const A=P[mod(p-1,12)].stars, B=P[mod(p+1,12)].stars;
+  const f=(S,n)=>S.find(s=>s.name===n);
+  return GIAP.filter(([x,y])=>{const a1=f(A,x)&&f(B,y)?[f(A,x),f(B,y)]:f(A,y)&&f(B,x)?[f(B,x),f(A,y)]:null;
+    if(!a1)return false; if(x==='Thái Dương')return a1.every(s=>s.bright!=='H'); return true;});
+}
 function scoreAll(ch){
   const P=ch.P;
   const raw=P.map(c=>c.stars.reduce((a,s)=>a+sv(s,c.chi),0));
@@ -401,7 +420,8 @@ function scoreAll(ch){
     const opp=mod(p+6,12);
     let own=raw[p]*((c.tuan||c.triet)?0.6:1);
     if(c.vcd) own+=0.7*chinhSum[opp]-0.6;
-    let t=own+(c.vcd?0.3:0.5)*raw[opp]+0.3*(raw[mod(p+4,12)]+raw[mod(p+8,12)]);
+    let t=own+(c.vcd?0.3:0.5)*raw[opp]+0.3*(raw[mod(p+4,12)]+raw[mod(p+8,12)])+0.15*raw[nhiHop(p)];
+    giapOf(P,p).forEach(g=>t+=g[2]);
     const names=tpOf(p).flatMap(x=>P[x].stars.map(s=>s.name));
     const has=n=>names.includes(n);
     if(has('Địa Không')&&has('Địa Kiếp'))t-=0.8;
@@ -448,6 +468,33 @@ function starLine(cung,s){
 }
 const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 function comboLines(stars){const n=stars.map(s=>s.name);return COMBO.filter(([a])=>a.every(x=>n.includes(x))).map(x=>x[1]);}
+const firstClause=s=>s.split(';')[0];
+const brSpan=s=>`<span class="br br-${s.bright==='Đ'?'D':s.bright}">${BR_NAME[s.bright]}</span>`;
+function chieuLines(ch,p,cung){
+  const d=DOMAIN[cung], out=[];
+  const src=[['Xung chiếu',mod(p+6,12),'tác động mạnh, đối diện'],['Tam hợp',mod(p+4,12),'hỗ trợ'],['Tam hợp',mod(p+8,12),'hỗ trợ'],['Nhị hợp',nhiHop(p),'tác động ngầm, nhẹ']];
+  for(const [kind,q,w] of src){
+    const c=ch.P[q], ci=c.stars.filter(s=>s.kind==='chinh');
+    const big=c.stars.filter(s=>BIGGOOD.includes(s.name)), bad=c.stars.filter(s=>SAT6.includes(s.name)||s.name==='Hóa Kỵ');
+    let t=`<b>${kind}</b> từ ${c.name} (${CHI[q]}, ${w}): `;
+    if(ci.length){
+      const good=ci.filter(s=>isBright(s.bright)).length, hãm=ci.length-good;
+      t+=ci.map(s=>`${s.name} ${brSpan(s)} — ${firstClause(INFO[s.name][d][isBright(s.bright)?0:1])}`).join('; ');
+      t+=hãm===ci.length?' → kéo cung này xấu đi':good===ci.length?' → đỡ cho cung này':'';
+    }else t+='vô chính diệu, không có chính tinh chiếu sang';
+    if(big.length)t+=`; kèm cát tinh ${big.map(s=>s.name).join(', ')}`;
+    if(bad.length)t+=`; kèm sát tinh ${bad.map(s=>s.name).join(', ')}`;
+    out.push(t+'.');
+  }
+  const cn=tpOf(p).flatMap(x=>ch.P[x].stars.filter(s=>s.kind==='chinh'));
+  const nm=cn.map(s=>s.name), cd=CD[cung];
+  if(['Thất Sát','Phá Quân','Tham Lang'].every(x=>nm.includes(x)))out.push(`Tam phương hội đủ <b>Sát Phá Tham</b>: ${cd} biến động mạnh, thành bại đều lớn.`);
+  if(nm.includes('Tử Vi')&&nm.includes('Thiên Phủ'))out.push(`Tam phương có <b>Tử Phủ</b> cùng hội: ${cd} có nền tảng vững, được nâng đỡ.`);
+  if(cn.filter(s=>['Thiên Cơ','Thái Âm','Thiên Đồng','Thiên Lương'].includes(s.name)).length>=3)out.push(`Tam phương thành <b>Cơ Nguyệt Đồng Lương</b>: ${cd} ổn định, nhẹ nhàng, ít đột biến.`);
+  const td=cn.find(s=>s.name==='Thái Dương'), ta=cn.find(s=>s.name==='Thái Âm');
+  if(td&&ta){if(td.bright!=='H'&&ta.bright!=='H')out.push(`Thái Dương, Thái Âm cùng sáng trong tam phương: ${cd} sáng sủa, có danh có lợi.`);else if(td.bright==='H'&&ta.bright==='H')out.push(`Thái Dương, Thái Âm cùng hãm trong tam phương: ${cd} vất vả, hay bị phụ lòng.`);}
+  return out;
+}
 function analyzePalace(ch,p){
   const c=ch.P[p], cung=c.name, out=[];
   const opp=ch.P[mod(p+6,12)];
@@ -472,56 +519,123 @@ function analyzePalace(ch,p){
   if(cung==='Tật Ách'&&(n.includes('Thiên Y')||n.includes('Giải Thần')||n.includes('Thiên Giải')))out.push('Có Thiên Y/Giải Thần ở Tật Ách: bệnh có thuốc, gặp thầy gặp thuốc.');
   if(c.triet)out.push('<b>Triệt</b> án ngữ: cái tốt bị chặn, cái xấu cũng bị chặn; tuổi trẻ việc của cung này hay gãy giữa chừng, khoảng ngoài 30 mới thoát.');
   else if(c.tuan)out.push('<b>Tuần</b> án ngữ: tác dụng của sao bị giảm, ảnh hưởng nhẹ dần về sau.');
-  // tam phương
+  // tam phương tứ chính + nhị hợp + giáp
+  chieuLines(ch,p,cung).forEach(l=>out.push(l));
+  giapOf(ch.P,p).forEach(g=>out.push(`<span class="${g[2]>0?'tag-good':'tag-bad'}">${g[3]}</span> ${g[0]==='Kình Dương'&&n.includes('Lộc Tồn')?'Lộc Tồn bị Kình Đà giáp: có lộc nhưng bị kìm, giữ của vất vả':cap(g[4].replace('{cd}',cd))}.`));
   const tpIdx=[mod(p+6,12),mod(p+4,12),mod(p+8,12)];
-  const tpN=tpIdx.flatMap(x=>ch.P[x].stars.map(s=>s.name));
+  const tpN=tpIdx.flatMap(x=>ch.P[x].stars.map(s=>s.name)).concat(ch.P[nhiHop(p)].stars.map(s=>s.name));
   const g=tpN.filter(x=>BIGGOOD.includes(x)), b=tpN.filter(x=>SAT6.includes(x)||x==='Hóa Kỵ');
-  out.push(`Tam phương tứ chính (xung chiếu ${opp.name}, tam hợp ${ch.P[tpIdx[1]].name}, ${ch.P[tpIdx[2]].name}): ${g.length?'cát tinh hội '+g.join(', '):'không có cát tinh lớn hội về'}; ${b.length?'sát tinh hội '+b.join(', '):'không có sát tinh lớn chiếu'}. ${g.length>b.length+1?'Được hỗ trợ tốt từ bên ngoài.':b.length>g.length+1?'Tam phương bị sát tinh vây: dù bản cung thế nào, việc của cung này cũng thường phải trả giá.':'Cát sát lẫn lộn.'}`);
+  out.push(`<b>Tổng hợp chiếu về:</b> ${g.length?g.length+' cát tinh lớn ('+g.join(', ')+')':'không có cát tinh lớn'}, ${b.length?b.length+' sát tinh ('+b.join(', ')+')':'không có sát tinh lớn'}. ${g.length>b.length+1?'Được hỗ trợ tốt từ bên ngoài.':b.length>g.length+1?'Bị sát tinh vây: dù bản cung thế nào, việc của cung này cũng thường phải trả giá.':'Cát sát lẫn lộn, tốt xấu đan xen.'}`);
   const v=VERDICT[cung][level(c.score)];
   return {score:c.score,label:label(c.score),lines:out,verdict:v};
 }
 function cachCuc(ch){
-  const R=[]; const P=ch.P, m=ch.menh; const mc=P[m];
+  const R=[], P=ch.P, m=ch.menh, mc=P[m];
   const tpN=tpOf(m).flatMap(x=>names(ch,x)); const has=x=>tpN.includes(x); const inM=x=>names(ch,m).includes(x);
   const chM=chinhOf(ch,m), chMn=chM.map(s=>s.name);
-  const tpChinh=tpOf(m).flatMap(x=>chinhOf(ch,x));
-  const find=n=>tpChinh.find(s=>s.name===n);
+  const tpChinh=tpOf(m).flatMap(x=>chinhOf(ch,x)), tpCn=tpChinh.map(s=>s.name);
+  const find=n=>tpChinh.find(s=>s.name===n), br=n=>{const s=chM.find(x=>x.name===n);return s?s.bright:null;};
   const add=(t,txt,k)=>R.push({t,txt,k});
-  if(has('Tử Vi')&&has('Thiên Phủ'))add('Tử Phủ triều viên','Tử Vi và Thiên Phủ cùng hội về Mệnh: nền tảng phú quý, dễ có địa vị và của cải.','good');
-  if(chMn.some(x=>['Thất Sát','Phá Quân','Tham Lang'].includes(x)))add('Sát Phá Tham','Mệnh thuộc cách Sát Phá Tham: đời biến động mạnh, thành bại đều lớn; hợp khai phá, tự lập, không hợp an phận.','mid');
-  const cndl=['Thiên Cơ','Thái Âm','Thiên Đồng','Thiên Lương'];
-  if(chMn.length&&chMn.every(x=>cndl.includes(x))&&tpChinh.filter(s=>cndl.includes(s.name)).length>=3)add('Cơ Nguyệt Đồng Lương','Hợp công chức, nghề ổn định, tham mưu, chuyên môn; ít hợp mạo hiểm kinh doanh lớn.','mid');
-  const td=find('Thái Dương'), ta=find('Thái Âm');
-  if(td&&ta&&isBright(td.bright)&&td.bright!=='B'&&isBright(ta.bright)&&ta.bright!=='B')add('Nhật Nguyệt tịnh minh','Thái Dương và Thái Âm đều sáng hội Mệnh: thông minh, danh lợi song toàn.','good');
-  if(td&&ta&&td.bright==='H'&&ta.bright==='H')add('Nhật Nguyệt phản bối','Thái Dương, Thái Âm đều hãm: vất vả, ly tổ, hay gặp người phụ lòng; phải tự lực.','bad');
+  const hasLoc=has('Lộc Tồn')||has('Hóa Lộc');
+  // —— Cách phú quý ——
+  if(inM('Tử Vi')&&inM('Thiên Phủ'))add('Tử Phủ đồng cung','Tử Vi, Thiên Phủ cùng thủ Mệnh: phú quý song toàn, có địa vị và của cải; cần cát tinh phò mới phát lớn.','good');
+  else if(has('Tử Vi')&&has('Thiên Phủ'))add('Tử Phủ triều viên','Tử Vi và Thiên Phủ cùng hội về Mệnh: nền tảng phú quý, dễ có địa vị và của cải.','good');
+  const TPVT=['Tử Vi','Thiên Phủ','Vũ Khúc','Thiên Tướng'];
+  if(chMn.some(x=>TPVT.includes(x))&&TPVT.filter(x=>tpCn.includes(x)).length>=3)add('Tử Phủ Vũ Tướng','Mệnh thuộc bộ Tử Phủ Vũ Tướng: chính trực, có tài tổ chức, hợp làm lớn và quản lý tài sản.','good');
+  if(inM('Tử Vi')&&has('Tả Phù')&&has('Hữu Bật'))add('Quân thần khánh hội','Tử Vi thủ Mệnh có Tả Hữu phò tá: như vua có tôi giỏi — có địa vị, người dưới hết lòng.','good');
+  if(has('Thiên Phủ')&&has('Thiên Tướng')&&!inM('Thiên Phủ')&&!inM('Thiên Tướng'))add('Phủ Tướng triều viên','Thiên Phủ, Thiên Tướng chiếu về Mệnh: được hưởng lộc, có chức phận.','good');
+  if(inM('Tử Vi')&&m===6)add('Cực hướng ly minh','Tử Vi ở Ngọ thủ Mệnh: quý cách, có địa vị cao.','good');
+  if(inM('Thất Sát')&&[0,2,6,8].includes(m))add('Thất Sát triều đẩu','Thất Sát ở Dần Thân Tý Ngọ thủ Mệnh: tay trắng lập nghiệp, có quyền uy.','good');
+  if(inM('Phá Quân')&&(m===0||m===6))add('Anh tinh nhập miếu','Phá Quân ở Tý Ngọ thủ Mệnh: anh hùng, dám làm việc lớn, có quyền.','good');
+  if(inM('Thiên Lương')&&m===6)add('Thọ tinh nhập miếu','Thiên Lương ở Ngọ thủ Mệnh: thanh cao, có thọ, được trọng vọng.','good');
+  if(inM('Cự Môn')&&(m===0||m===6))add('Thạch trung ẩn ngọc','Cự Môn ở Tý Ngọ thủ Mệnh: ngọc trong đá — tài năng ẩn, càng về sau càng sáng; gặp Lộc Quyền Khoa thì phát lớn.','good');
+  if(inM('Cự Môn')&&inM('Thái Dương'))add(m===2?'Cự Nhật Dần cung':'Cự Nhật đồng cung',m===2?'Cự Môn, Thái Dương ở Dần: danh tiếng vang xa, hiển đạt.':'Cự Môn, Thái Dương ở Thân: có danh nhưng vất vả hơn, thị phi nhiều hơn ở Dần.',m===2?'good':'mid');
+  if(inM('Cự Môn')&&inM('Thiên Cơ'))add(m===3?'Cự Cơ Mão cung':'Cự Cơ Dậu cung',m===3?'Cự Cơ ở Mão: giàu sang, giỏi lý luận và kinh doanh.':'Cự Cơ ở Dậu: có tài nhưng hay thị phi, thành bại thất thường.',m===3?'good':'mid');
+  if(inM('Thái Dương')&&m===3)add('Nhật xuất phù tang','Thái Dương ở Mão thủ Mệnh: mặt trời mới mọc, tiền đồ rộng mở.','good');
   if(inM('Thái Dương')&&m===6)add('Nhật lệ trung thiên','Thái Dương ở Ngọ thủ Mệnh: danh tiếng lớn, có quyền.','good');
   if(inM('Thái Âm')&&m===11)add('Nguyệt lãng thiên môn','Thái Âm ở Hợi thủ Mệnh: giàu bền, thanh nhã.','good');
-  if(inM('Tử Vi')&&m===6)add('Cực hướng ly minh','Tử Vi ở Ngọ thủ Mệnh: quý cách, có địa vị.','good');
-  if(inM('Thất Sát')&&[0,2,6,8].includes(m))add('Thất Sát triều đẩu','Thất Sát ở Dần Thân Tý Ngọ thủ Mệnh: tay trắng lập nghiệp, có quyền uy.','good');
-  const nb=[names(ch,m+1),names(ch,m-1)];
-  const giap=(a,b)=>(nb[0].includes(a)&&nb[1].includes(b))||(nb[0].includes(b)&&nb[1].includes(a));
-  if(giap('Tả Phù','Hữu Bật'))add('Tả Hữu giáp Mệnh','Được người nâng đỡ hai bên, làm gì cũng có người phụ.','good');
-  if(giap('Văn Xương','Văn Khúc'))add('Xương Khúc giáp Mệnh','Học hành, giấy tờ thuận, có danh về chữ nghĩa.','good');
-  if(giap('Kình Dương','Đà La'))add('Kình Đà giáp Mệnh','Bị kẹp giữa hai sát tinh: hay bị chèn ép, có lộc mà giữ vất vả.','bad');
-  if(giap('Địa Không','Địa Kiếp'))add('Không Kiếp giáp Mệnh','Dễ gặp hao tán bất ngờ, kế hoạch hay đổ vỡ.','bad');
-  if(has('Văn Xương')&&has('Văn Khúc'))add('Văn tinh hội Mệnh','Xương Khúc hội: thông minh, học giỏi, giỏi chữ nghĩa, ăn nói.','good');
-  if(has('Tả Phù')&&has('Hữu Bật'))add('Tả Hữu hội Mệnh','Có vây cánh, được người giúp sức, hợp làm việc nhóm, quản lý.','good');
-  if(has('Thiên Khôi')&&has('Thiên Việt'))add('Khôi Việt hội Mệnh','Hay gặp quý nhân, có cơ hội thi cử, thăng tiến.','good');
-  if(has('Lộc Tồn')&&has('Hóa Lộc'))add('Song Lộc','Lộc Tồn và Hóa Lộc cùng hội Mệnh: tiền bạc dồi dào, có nhiều nguồn thu.','good');
-  if(tpOf(m).some(x=>{const n=names(ch,x);return n.includes('Thiên Mã')&&(n.includes('Lộc Tồn')||n.includes('Hóa Lộc'));}))add('Lộc Mã giao trì','Đi xa, buôn bán, di chuyển mà phát tài.','good');
+  if(inM('Thái Âm')&&m===0)add('Nguyệt sinh thương hải','Thái Âm ở Tý thủ Mệnh: thanh tú, giàu có, hưởng phúc.','good');
+  if(m===7&&mc.vcd&&ch.pos['Thái Dương']===3&&ch.pos['Thái Âm']===11)add('Minh châu xuất hải','Mệnh vô chính diệu ở Mùi, Nhật ở Mão Nguyệt ở Hợi chiếu về: cách rất đẹp, tài danh vang dội.','good');
+  const td=find('Thái Dương'), ta=find('Thái Âm');
+  if(td&&ta&&td.bright!=='H'&&td.bright!=='B'&&ta.bright!=='H'&&ta.bright!=='B')add('Nhật Nguyệt tịnh minh','Thái Dương và Thái Âm đều sáng hội Mệnh: thông minh, danh lợi song toàn.','good');
+  if(td&&ta&&td.bright==='H'&&ta.bright==='H')add('Nhật Nguyệt phản bối','Thái Dương, Thái Âm đều hãm: vất vả, ly tổ, hay gặp người phụ lòng; phải tự lực.','bad');
+  if(has('Thái Dương')&&has('Thiên Lương')&&has('Văn Xương')&&hasLoc)add('Dương Lương Xương Lộc','Thái Dương, Thiên Lương, Văn Xương và Lộc cùng hội: khoa bảng, thi cử đỗ đạt, có học vị.','good');
+  const cndl=['Thiên Cơ','Thái Âm','Thiên Đồng','Thiên Lương'];
+  if(chMn.length&&chMn.every(x=>cndl.includes(x))&&tpCn.filter(x=>cndl.includes(x)).length>=3)add('Cơ Nguyệt Đồng Lương','Hợp công chức, nghề ổn định, tham mưu, chuyên môn; ít hợp mạo hiểm kinh doanh lớn.','mid');
+  if(chMn.some(x=>['Thất Sát','Phá Quân','Tham Lang'].includes(x)))add('Sát Phá Tham','Mệnh thuộc cách Sát Phá Tham: đời biến động mạnh, thành bại đều lớn; hợp khai phá, tự lập, không hợp an phận.','mid');
+  if(inM('Vũ Khúc')&&inM('Tham Lang')&&(m===1||m===7))add('Tham Vũ đồng hành','Vũ Khúc, Tham Lang ở Sửu Mùi: trước 30 vất vả, sau 30 phát giàu.','good');
+  if(inM('Tham Lang')&&(inM('Hỏa Tinh')||inM('Linh Tinh')))add(inM('Hỏa Tinh')?'Hỏa Tham':'Linh Tham','Tham Lang gặp Hỏa/Linh: phát đột ngột, có thể giàu nhanh nhờ thời cơ.','good');
+  if(inM('Văn Xương')&&inM('Văn Khúc'))add('Văn Quế văn hoa','Xương Khúc cùng thủ Mệnh: học giỏi, văn hay, có danh về chữ nghĩa.','good');
+  else if(has('Văn Xương')&&has('Văn Khúc'))add('Văn tinh ám củng','Xương Khúc hội Mệnh: thông minh, học giỏi, giỏi chữ nghĩa, ăn nói.','good');
+  if(inM('Tả Phù')&&inM('Hữu Bật'))add('Tả Hữu đồng cung','Tả Hữu cùng thủ Mệnh: rộng lượng, được nhiều người giúp, hợp quản lý.','good');
+  else if(has('Tả Phù')&&has('Hữu Bật'))add('Tả Hữu hội Mệnh','Có vây cánh, được người giúp sức, hợp làm việc nhóm, quản lý.','good');
+  if((inM('Thiên Khôi')&&has('Thiên Việt'))||(inM('Thiên Việt')&&has('Thiên Khôi')))add('Tọa quý hướng quý','Khôi hoặc Việt thủ Mệnh, sao kia chiếu về: đi đâu cũng gặp quý nhân, có cơ hội thăng tiến.','good');
+  else if(has('Thiên Khôi')&&has('Thiên Việt'))add('Khôi Việt hội Mệnh','Hay gặp quý nhân, thuận thi cử, thăng tiến.','good');
+  if(inM('Lộc Tồn')&&inM('Hóa Lộc'))add('Lộc hợp uyên ương','Lộc Tồn và Hóa Lộc cùng thủ Mệnh: tiền bạc dồi dào, nhiều nguồn thu.','good');
+  else if(has('Lộc Tồn')&&has('Hóa Lộc'))add('Song Lộc','Lộc Tồn và Hóa Lộc cùng hội Mệnh: tiền bạc dồi dào, có nhiều nguồn thu.','good');
+  if(tpOf(m).some(x=>{const n=names(ch,x);return n.includes('Thiên Mã')&&(n.includes('Lộc Tồn')||n.includes('Hóa Lộc'));}))add('Lộc Mã giao trì','Lộc và Mã cùng cung trong tam phương Mệnh: đi xa, buôn bán, di chuyển mà phát tài.','good');
   if(has('Hóa Lộc')&&has('Hóa Quyền')&&has('Hóa Khoa'))add('Tam Hóa liên châu','Lộc Quyền Khoa cùng hội Mệnh: cách đẹp hiếm có, danh lợi đều đến.','good');
+  if(inM('Kình Dương')&&m===6)add('Mã đầu đới kiếm','Kình Dương ở Ngọ thủ Mệnh: uy võ, hợp quân sự, nhưng đời nhiều sóng gió; gặp cát thì làm nên việc lớn.','mid');
+  // —— Cách xấu ——
   if(inM('Hóa Kỵ'))add('Hóa Kỵ thủ Mệnh','Hay gặp chuyện không như ý, thị phi, bị hiểu lầm; tâm nhiều uẩn khúc.','bad');
+  if(names(ch,m+6).includes('Hóa Kỵ'))add('Kỵ xung Mệnh','Hóa Kỵ ở Thiên Di xung về: ra ngoài hay gặp thị phi, bị người gây khó.','bad');
   const satN=tpN.filter(x=>SAT6.includes(x));
   if(satN.length>=3)add('Sát tinh vây Mệnh',`Có ${satN.join(', ')} hội về Mệnh: đời nhiều va vấp, tai ương; phải cẩn trọng, tránh mạo hiểm.`,'bad');
-  if(inM('Tham Lang')&&(inM('Hỏa Tinh')||inM('Linh Tinh')))add(inM('Hỏa Tinh')?'Hỏa Tham':'Linh Tham','Tham Lang gặp Hỏa/Linh: phát đột ngột, có thể giàu nhanh nhờ thời cơ.','good');
+  if(inM('Địa Không')||inM('Địa Kiếp'))add([2,5,8,11].includes(m)?'Không Kiếp đắc địa thủ Mệnh':'Không Kiếp thủ Mệnh',[2,5,8,11].includes(m)?'Liều lĩnh, dám nghĩ khác người; có thể phát nhanh nhưng không bền.':'Đời lên xuống thất thường, hay hao tán, dễ trắng tay vì quyết định liều.',[2,5,8,11].includes(m)?'mid':'bad');
+  if(inM('Kình Dương')&&m!==6)add([1,4,7,10].includes(m)?'Kình Dương đắc địa thủ Mệnh':'Kình Dương hãm thủ Mệnh',[1,4,7,10].includes(m)?'Cương quyết, có uy, dám đương đầu.':'Nóng nảy, hay va chạm, đề phòng thương tích, kiện tụng.',[1,4,7,10].includes(m)?'mid':'bad');
   const lt=chM.find(s=>s.name==='Liêm Trinh');
   if(lt&&lt.bright==='H'&&(inM('Thiên Hình')||inM('Kình Dương')))add('Liêm Trinh hãm gặp Hình/Kình','Đề phòng tai nạn, thương tích, kiện tụng pháp lý.','bad');
+  if(inM('Liêm Trinh')&&inM('Thiên Tướng')&&(inM('Kình Dương')||inM('Thiên Hình')))add('Hình tù giáp ấn','Liêm Trinh, Thiên Tướng gặp Kình Dương/Thiên Hình: đề phòng kiện tụng, vướng pháp luật.','bad');
   if(inM('Cự Môn')&&inM('Hóa Kỵ'))add('Cự Kỵ','Thị phi nặng, lời nói gây họa; tránh tranh cãi, ký kết vội.','bad');
+  if(inM('Thiên Mã')&&(mc.tuan||mc.triet||inM('Địa Không')||inM('Địa Kiếp')))add('Mã ngộ Không vong','Thiên Mã gặp Tuần/Triệt/Không Kiếp: bôn ba nhiều mà ít kết quả.','bad');
+  if((inM('Lộc Tồn')||inM('Hóa Lộc'))&&(inM('Địa Không')||inM('Địa Kiếp')||inM('Hóa Kỵ')))add('Lộc phùng xung phá','Lộc ở Mệnh gặp Không Kiếp/Hóa Kỵ: có lộc mà giữ không được, tiền đến kèm phiền.','bad');
+  if(has('Linh Tinh')&&has('Văn Xương')&&has('Đà La')&&has('Vũ Khúc'))add('Linh Xương Đà Vũ','Bộ sao này hội Mệnh: đề phòng thất bại lớn, tai nạn bất ngờ (sách cổ kỵ sông nước).','bad');
+  if(inM('Tham Lang')&&(m===0||m===11)&&(inM('Kình Dương')||inM('Đà La')||inM('Đào Hoa')||inM('Thiên Riêu')))add('Phiếm thủy đào hoa','Tham Lang ở Tý Hợi gặp Kình/Đà/Đào/Riêu: đa tình, dễ sa vào tửu sắc mà hại thân.','bad');
+  if(inM('Thất Sát')&&br('Thất Sát')==='H'&&(inM('Kình Dương')||inM('Đà La')))add('Thất Sát hãm gặp Kình Đà','Đề phòng tai nạn, thương tích, phẫu thuật.','bad');
+  if(inM('Phá Quân')&&br('Phá Quân')==='H'&&satN.length>=2)add('Phá Quân hãm gặp sát','Đời nhiều đổ vỡ, phải làm lại nhiều lần.','bad');
+  if(((inM('Thái Dương')&&br('Thái Dương')==='H')||(inM('Thái Âm')&&br('Thái Âm')==='H'))&&inM('Hóa Kỵ'))add('Nhật/Nguyệt hãm hóa Kỵ','Sao hãm lại hóa Kỵ: hao tổn mắt, bất lợi cho cha/mẹ, danh tiếng bị tổn.','bad');
+  if(inM('Cô Thần')||inM('Quả Tú'))add('Cô Quả thủ Mệnh','Tính cô độc, ít chia sẻ; dễ xa người thân hoặc muộn duyên.','mid');
+  if(m===4||m===10)add('Mệnh đóng La Võng','Mệnh ở Thìn/Tuất (Thiên La, Địa Võng): hay bị bó buộc, trước khó sau mới thoát; có Tử Phủ, Xương Khúc thì phá được lưới.','mid');
   if(mc.vcd){ if(mc.tuan||mc.triet)add('Vô chính diệu gặp Tuần/Triệt','Mệnh không chính tinh nhưng gặp Tuần/Triệt: phản thành có lợi, người khôn ngoan, có thể phát bất ngờ.','good'); else add('Mệnh vô chính diệu','Mệnh không có chính tinh: tính cách dễ ảnh hưởng hoàn cảnh, hay đổi hướng; nên ly hương lập nghiệp.','mid'); }
   else if(mc.triet)add('Triệt đóng Mệnh','Tuổi trẻ lận đận, hay hỏng việc giữa chừng; ngoài 30 mới hanh thông.','bad');
   else if(mc.tuan)add('Tuần đóng Mệnh','Tuổi trẻ chậm, sau 30 tốt dần lên.','mid');
+  // —— Kẹp Mệnh ——
+  giapOf(P,m).forEach(g=>add(g[3]+' Mệnh',g[0]==='Kình Dương'&&inM('Lộc Tồn')?'Lộc Tồn bị Kình Đà giáp: có lộc nhưng bị kìm, giữ của vất vả.':cap(g[4].replace('{cd}','bản thân'))+'.',g[2]>0?'good':'bad'));
   return R;
 }
+const ESS={'Tử Vi':'quyền uy, địa vị','Thiên Cơ':'mưu trí, kế hoạch','Thái Dương':'danh tiếng, nam giới, cha','Vũ Khúc':'tiền bạc, tài chính','Thiên Đồng':'phúc, hưởng thụ, tình cảm','Liêm Trinh':'chức vụ, quan hệ, pháp lý','Thái Âm':'nhà đất, nữ giới, mẹ','Tham Lang':'giao tế, dục vọng','Cự Môn':'lời nói, lý lẽ','Thiên Lương':'sự che chở, y giáo','Phá Quân':'sự đổi mới, khai phá','Văn Xương':'văn chương, giấy tờ, thi cử','Văn Khúc':'tài ăn nói, nghệ thuật','Tả Phù':'người trợ giúp','Hữu Bật':'người trợ giúp','Thiên Phủ':'kho của, tích lũy'};
+const KY_SP={'Thái Dương':'Chú ý mắt, đầu, tim; bất lợi cho cha hoặc nam giới thân cận; danh tiếng hay bị tổn.','Thái Âm':'Bất lợi cho mẹ hoặc nữ giới thân cận; nhà đất hay trục trặc.','Cự Môn':'Khẩu thiệt nặng, lời nói gây họa, kiện cáo.','Văn Xương':'Sai sót giấy tờ, hợp đồng, thi cử; cẩn thận khi ký kết.','Văn Khúc':'Lời nói, văn bản dễ gây hiểu lầm; thi cử trắc trở.','Thiên Cơ':'Tính toán sai, đổi ý thất thường, hay lo âu.','Liêm Trinh':'Kiện tụng, máu huyết, tình cảm rối ren.','Thiên Đồng':'Phúc giảm, tình cảm lận đận, hưởng không trọn.','Vũ Khúc':'Tiền bạc bị kẹt, nợ nần, làm ăn thua lỗ.','Tham Lang':'Dục vọng gây họa, tửu sắc, đầu cơ thua.'};
+function hoaLine(ch,i,t,p,prefix){
+  const c=ch.P[p], cung=c.name, cd=CD[cung], st=c.stars.find(s=>s.name===t), dim=st&&st.bright==='H';
+  const e=ESS[t]||t;
+  const txt=[`lộc đến qua ${e}; ${cd} có lợi${dim?' nhưng sao hãm nên lộc nhỏ, đến rồi đi':''}`,`nắm quyền qua ${e}; ${cd} có thế chủ động, đôi khi cứng rắn quá`,`có danh qua ${e}; ${cd} gặp khó có người gỡ`,`trục trặc ở ${e}; ${cd} hay vướng mắc, thất vọng. ${KY_SP[t]||''}`][i].trim().replace(/([^.])$/,'$1.');
+  return `<span class="${i===3?'tag-bad':'tag-good'}">${prefix}${HOA_NAME[i]}</span> ${t} tại <b>${cung}</b> (${CHI[p]}): ${txt}`;
+}
+function tuHoa(ch){
+  const H=HOA[ch.yc].map((t,i)=>({i,t,p:ch.pos[t]})), out=[];
+  H.forEach(h=>{if(h.p!==undefined)out.push(hoaLine(ch,h.i,h.t,h.p,''));});
+  const L=H[0].p,K=H[3].p;
+  if(L!==undefined&&K!==undefined){
+    if(L===K)out.push(`<b>Lộc Kỵ đồng cung</b> tại ${ch.P[L].name}: được rồi mất, lợi đi kèm phiền.`);
+    else if(mod(L+6,12)===K)out.push(`<b>Kỵ xung Lộc</b> (${ch.P[K].name} xung ${ch.P[L].name}): lộc ở ${CD[ch.P[L].name]} hay bị phá.`);
+    out.push(`Theo phép Tứ Hóa: nơi Hóa Lộc đóng (${ch.P[L].name}) là chỗ đời mình được hưởng; nơi Hóa Kỵ đóng (${ch.P[K].name}) là chỗ mình phải trả, hay phiền lòng nhất.`);
+  }
+  if(L!==undefined&&tpOf(ch.menh).includes(L))out.push('Hóa Lộc nằm trong tam phương Mệnh: tiền bạc, công danh có lợi thế bẩm sinh.');
+  if(K!==undefined&&tpOf(ch.menh).includes(K)&&K!==ch.menh)out.push('Hóa Kỵ nằm trong tam phương Mệnh: có một mảng chính của đời luôn phải gồng gánh.');
+  return out;
+}
+function dhHoa(ch,d){
+  const can=ch.P[d.p].can, H=HOA[can].map((t,i)=>({i,t,p:ch.pos[t]}));
+  let adj=0; const tp=tpOf(d.p);
+  H.forEach(h=>{if(h.p===undefined)return;
+    if(h.i===0)adj+=h.p===d.p?6:tp.includes(h.p)?3:0;
+    if(h.i===1||h.i===2)adj+=tp.includes(h.p)?2:0;
+    if(h.i===3)adj-=h.p===d.p?8:tp.includes(h.p)?3:0;});
+  if(H[3].p===ch.menh&&d.p!==ch.menh)adj-=3;
+  return {can,H,adj};
+}
+function dhScore(ch,d){return Math.max(5,Math.min(97,ch.P[d.p].score+dhHoa(ch,d).adj));}
+function allGiap(ch){const R=[];for(let p=0;p<12;p++)giapOf(ch.P,p).forEach(g=>{if(g[0]==='Kình Dương'&&names(ch,p).includes('Lộc Tồn'))g=[g[0],g[1],g[2],'Lộc Tồn bị Kình Đà giáp','{cd} có lộc nhưng bị kìm hai bên, giữ của vất vả'];R.push({p,g});});return R;}
 function menhCore(ch){
   const R=[]; const bm=ch.banMenh[1], cu=ch.cucHanh;
   const r=rel(cu,bm);
@@ -534,6 +648,10 @@ function menhCore(ch){
   R.push({t:ok?'Âm dương thuận lý':'Âm dương nghịch lý',txt:ok?'Người '+(ch.duong?'dương':'âm')+' Mệnh đóng cung '+(yangPal?'dương':'âm')+': mọi việc thuận chiều, ít bị cản.':'Người '+(ch.duong?'dương':'âm')+' Mệnh đóng cung '+(yangPal?'dương':'âm')+': hay gặp nghịch cảnh, làm gì cũng phải gấp đôi công sức.',k:ok?'good':'bad'});
   const thanCung=ch.P[ch.than].name;
   R.push({t:'Thân cư '+thanCung,txt:THAN_CU[thanCung],k:'mid'});
+  const mg=ch.menh%4, mh=TH_HANH[mg], r3=rel(mh,bm);
+  R.push({t:'Tam hợp cung Mệnh',txt:`Mệnh ở ${CHI[ch.menh]} thuộc tam hợp ${TH_GROUP[mg].map(x=>CHI[x]).join(' – ')} (${mh} cục). `+{sinh:'Tam hợp này sinh bản mệnh: được thế, có người cùng chí hướng nâng đỡ.',duocsinh:'Bản mệnh sinh tam hợp này: hay phải lo cho người khác.',khac:'Tam hợp này khắc bản mệnh: môi trường xung quanh hay gây áp lực.',bikhac:'Bản mệnh khắc tam hợp này: phải chế ngự hoàn cảnh mới yên.',hoa:'Cùng hành bản mệnh: hài hòa, ổn định.'}[r3],k:r3==='sinh'||r3==='hoa'?'good':r3==='khac'?'bad':'mid'});
+  const yg=TH_GROUP[ch.yz%4].filter(x=>x!==ch.yz), lh=nhiHop(ch.yz), xg=XUNG_GROUP[ch.yz%3].filter(x=>x!==ch.yz);
+  R.push({t:'Tuổi hợp – tuổi xung',txt:`Tuổi ${CHI[ch.yz]}: tam hợp với ${yg.map(x=>CHI[x]).join(', ')}, nhị hợp với ${CHI[lh]} — hợp làm ăn, kết giao, hôn nhân. Tứ hành xung với ${xg.map(x=>CHI[x]).join(', ')}, nặng nhất là ${CHI[mod(ch.yz+6,12)]} (xung trực tiếp) — hợp tác với các tuổi này cần rõ ràng.`,k:'mid'});
   return R;
 }
 function ageAt(ch,y){return y-ch.lunar[2]+1;}
@@ -545,9 +663,16 @@ function analyzeDH(ch,d){
   chinh.forEach(s=>out.push(`<b>${s.name}</b> ${BR_NAME[s.bright]}${c.vcd?' (mượn từ cung xung)':''}: thời kỳ này ${INFO[s.name].menh[isBright(s.bright)?0:1]}.`));
   const n=c.stars.filter(s=>NOTE[s.name]&&(BIGGOOD.includes(s.name)||SAT6.includes(s.name)||s.name==='Hóa Kỵ'||s.name==='Thiên Mã'||s.name==='Thiên Hình'));
   if(n.length)out.push(n.map(s=>`<b>${s.name}</b>: ${NOTE[s.name].replace('{cd}','vận này')}`).join('; ')+'.');
+  chieuLines(ch,d.p,c.name).forEach(l=>out.push(l));
+  giapOf(ch.P,d.p).forEach(g=>out.push(`<span class="${g[2]>0?'tag-good':'tag-bad'}">${g[3]}</span> ${cap(g[4].replace('{cd}','vận này'))}.`));
   if(c.triet)out.push('Đại hạn gặp Triệt: nửa đầu vận bị chặn, nửa sau mới thông.');
   else if(c.tuan)out.push('Đại hạn gặp Tuần: đà tốt xấu đều giảm bớt.');
-  const lv=level(c.score);
+  const dhh=dhHoa(ch,d);
+  out.push(`<b>Tứ Hóa đại hạn</b> (can ${CAN[dhh.can]}):`);
+  dhh.H.forEach(h=>{if(h.p!==undefined)out.push(hoaLine(ch,h.i,h.t,h.p,'ĐH ')+(h.p===d.p?' — đóng ngay cung đại hạn nên tác động rất mạnh.':tpOf(d.p).includes(h.p)?' — chiếu vào đại hạn.':''));});
+  if(dhh.H[3].p===ch.menh&&d.p!==ch.menh)out.push('Kỵ đại hạn nhập cung Mệnh gốc: 10 năm này tâm lý nặng nề, hay tự làm khó mình.');
+  if(dhh.H[0].p!==undefined&&dhh.H[0].p===dhh.H[3].p)out.push('Lộc Kỵ đại hạn đồng cung: được việc nhưng kèm rắc rối.');
+  const lv=level(dhScore(ch,d));
   out.push(['Đánh giá: vận tốt — nên chủ động mở rộng, đầu tư, nhận trách nhiệm lớn.','Đánh giá: vận trung bình — giữ vững là thắng, chọn lọc cơ hội.','Đánh giá: vận xấu — thu mình, tránh mạo hiểm tài chính, giữ sức khỏe và các mối quan hệ chính.'][lv]);
   return out;
 }
@@ -558,7 +683,7 @@ function analyzeYear(ch,Y){
   const dh=currentDH(ch,age);
   const luuLoc=LOC[vc], luuKinh=mod(luuLoc+1,12), luuDa=mod(luuLoc-1,12), luuMa=G_MA[vz%4];
   const luuHoa=HOA[vc].map((t,i)=>({name:'Lưu '+HOA_NAME[i],target:t,p:ch.pos[t]}));
-  const tp=tpOf(thP); const out=[]; let s=ch.P[thP].score*0.55+(dh?ch.P[dh.p].score:ch.P[ch.menh].score)*0.45;
+  const tp=tpOf(thP); const out=[]; let s=ch.P[thP].score*0.55+(dh?dhScore(ch,dh):ch.P[ch.menh].score)*0.45;
   out.push(`Năm ${CAN[vc]} ${CHI[vz]} ${Y}, đương số ${age} tuổi (tuổi âm). Tiểu hạn vào cung <b>${ch.P[thP].name}</b> (${CHI[thP]}) — điểm ${ch.P[thP].score}/100; ${dh?`đại hạn ở cung <b>${ch.P[dh.p].name}</b> (${dh.from}–${dh.to} tuổi)`:'chưa vào đại hạn đầu tiên (còn nhỏ, xem theo Mệnh)'}.`);
   out.push(`Việc nổi bật trong năm: ${CD[ch.P[thP].name]}.`);
   const lk=luuHoa[3], ll=luuHoa[0];
@@ -566,6 +691,11 @@ function analyzeYear(ch,Y){
   if(lk.p!==undefined&&lk.p===thP){s-=9;out.push(`<span class="tag-bad">Xấu</span> Lưu Hóa Kỵ đóng ngay tiểu hạn (theo ${lk.target}): năm nhiều trục trặc, thị phi, việc chính dễ hỏng — cẩn thận giấy tờ, lời nói.`);}
   else if(lk.p!==undefined&&tp.includes(lk.p)){s-=4;out.push(`<span class="tag-bad">Xấu</span> Lưu Hóa Kỵ chiếu tiểu hạn: có việc gây phiền lòng ở mảng ${CD[ch.P[lk.p].name]}.`);}
   if(lk.p===ch.menh&&thP!==ch.menh){s-=3;out.push('Lưu Hóa Kỵ đóng cung Mệnh gốc: tâm lý nặng nề, dễ bị hiểu lầm.');}
+  const lq=luuHoa[1], lkh=luuHoa[2];
+  if(lq.p!==undefined&&tp.includes(lq.p)){s+=2;out.push(`<span class="tag-good">Tốt</span> Lưu Hóa Quyền (theo ${lq.target}) chiếu tiểu hạn: năm có quyền, có tiếng nói ở mảng ${CD[ch.P[lq.p].name]}.`);}
+  if(lkh.p!==undefined&&tp.includes(lkh.p)){s+=2;out.push(`<span class="tag-good">Tốt</span> Lưu Hóa Khoa (theo ${lkh.target}) chiếu tiểu hạn: có danh, gặp khó có người gỡ.`);}
+  out.push(`Lưu Tứ Hóa năm ${CAN[vc]}: ${luuHoa.map(h=>`${h.name.replace('Lưu ','')} theo ${h.target} vào ${h.p!==undefined?ch.P[h.p].name:'?'}`).join('; ')}.`);
+  if(dh){const dk=dhHoa(ch,dh).H[3].p;if(dk===thP){s-=4;out.push('<span class="tag-bad">Xấu</span> Hóa Kỵ của đại hạn đóng đúng tiểu hạn: hai lớp Kỵ chồng lên, năm dễ hỏng việc chính.');}}
   if(luuKinh===thP||luuDa===thP){s-=5;out.push(`<span class="tag-bad">Xấu</span> Lưu ${luuKinh===thP?'Kình Dương':'Đà La'} đóng tiểu hạn: đề phòng va chạm, tai nạn, tranh chấp.`);}
   if(luuLoc===thP){s+=5;out.push('<span class="tag-good">Tốt</span> Lưu Lộc Tồn đóng tiểu hạn: tiền vào đều, giữ được của.');}
   if(luuMa===thP){out.push('Lưu Thiên Mã đóng tiểu hạn: năm hay đi lại, có thay đổi chỗ làm hoặc chỗ ở.');}
@@ -577,6 +707,10 @@ function analyzeYear(ch,Y){
   const ts=ch.P[thP].trangsinh;
   if(['Đế Vượng','Lâm Quan','Tràng Sinh'].includes(ts))out.push(`Tiểu hạn gặp ${ts}: sinh khí mạnh, dễ thành việc.`);
   if(['Tuyệt','Tử','Bệnh'].includes(ts))out.push(`Tiểu hạn gặp ${ts}: sinh khí yếu, nên giữ sức khỏe.`);
+  const thc=ch.P[thP], thChinh=(thc.vcd?ch.P[mod(thP+6,12)]:thc).stars.filter(x=>x.kind==='chinh');
+  out.push(`Tiểu hạn tọa ${thChinh.length?thChinh.map(x=>x.name+' '+brSpan(x)).join(', '):'vô chính diệu'}${thc.vcd?' (mượn cung xung)':''}.`);
+  chieuLines(ch,thP,thc.name).forEach(l=>out.push(l));
+  giapOf(ch.P,thP).forEach(g=>{s+=g[2]*3;out.push(`<span class="${g[2]>0?'tag-good':'tag-bad'}">${g[3]}</span> tiểu hạn: ${g[4].replace('{cd}','năm này')}.`);});
   s=Math.max(5,Math.min(97,Math.round(s)));
   out.push(`<b>Kết luận năm ${Y}: ${label(s)} (${s}/100).</b> `+['Năm thuận, nên hành động, mở rộng.','Năm bình, làm vừa sức, tránh liều.','Năm xấu, giữ thủ, tránh đầu tư lớn, ký kết và đi xa không cần thiết.'][level(s)]);
   return {Y,vc,vz,age,thP,dh,score:s,lines:out,luu:{loc:luuLoc,kinh:luuKinh,da:luuDa,ma:luuMa,hoa:luuHoa}};
@@ -591,7 +725,7 @@ function chartToText(ch,yr){
   for(let k=0;k<12;k++){const p=mod(ch.menh+k,12),c=ch.P[p];
     const ci=c.stars.filter(s=>s.kind==='chinh').map(s=>`${s.name}(${s.bright})`).join(', ')||'Vô chính diệu';
     const ph=c.stars.filter(s=>s.kind!=='chinh').map(s=>s.name).join(', ');
-    L.push(`- ${c.name} tại ${canchiCung(c)}${p===ch.than?' [Thân]':''}: chính tinh: ${ci}; phụ tinh: ${ph}; ${c.trangsinh}, ${c.bacsi}, ${c.thaitue}${c.tuan?'; Tuần':''}${c.triet?'; Triệt':''}; đại hạn ${c.dh}–${c.dh+9}; điểm tham khảo ${c.score}`);}
+    L.push(`- ${c.name} tại ${canchiCung(c)}${p===ch.than?' [Thân]':''}: chính tinh: ${ci}; phụ tinh: ${ph}; ${c.trangsinh}, ${c.bacsi}, ${c.thaitue}${c.tuan?'; Tuần':''}${c.triet?'; Triệt':''}; nhị hợp ${CHI[nhiHop(p)]}; đại hạn ${c.dh}–${c.dh+9}; điểm tham khảo ${c.score}`);}
   if(yr){L.push('',`Năm xem ${yr.Y} (${CAN[yr.vc]} ${CHI[yr.vz]}), tuổi âm ${yr.age}. Tiểu hạn tại cung ${ch.P[yr.thP].name} (${CHI[yr.thP]}). ${yr.dh?`Đại hạn hiện tại: cung ${ch.P[yr.dh.p].name} (${yr.dh.from}–${yr.dh.to} tuổi).`:''} Lưu Thái Tuế ${CHI[yr.vz]}; Lưu Lộc Tồn ${CHI[yr.luu.loc]}, Lưu Kình ${CHI[yr.luu.kinh]}, Lưu Đà ${CHI[yr.luu.da]}, Lưu Mã ${CHI[yr.luu.ma]}; ${yr.luu.hoa.map(h=>`${h.name} theo ${h.target} tại ${h.p!==undefined?CHI[h.p]:'?'}`).join(', ')}.`);}
   const cc=[...menhCore(ch),...cachCuc(ch)].map(x=>x.t).join('; ');
   L.push('',`Phần mềm nhận diện: ${cc}.`);
@@ -678,11 +812,11 @@ function renderChart(){
   highlight();
 }
 function highlight(){
-  const p=SEL, tp=[mod(p+4,12),mod(p+8,12),mod(p+6,12)];
-  document.querySelectorAll('.cell').forEach(c=>{const q=+c.dataset.p;c.classList.toggle('sel',q===p);c.classList.toggle('tp',tp.includes(q));});
+  const p=SEL, tp=[mod(p+4,12),mod(p+8,12),mod(p+6,12)], nh=nhiHop(p);
+  document.querySelectorAll('.cell').forEach(c=>{const q=+c.dataset.p;c.classList.toggle('sel',q===p);c.classList.toggle('tp',tp.includes(q));c.classList.toggle('nh',q===nh);});
   const pt=q=>{const [r,c]=GRID[q];const cl=(v)=>Math.max(100,Math.min(300,v));return [cl((c-.5)*100),cl((r-.5)*100)];};
-  const [a,b,c,d]=[p,...tp].map(pt);
-  $('#lines').innerHTML=`<polygon points="${a} ${b} ${c}" fill="none" stroke="var(--accent)" stroke-width="1.4" vector-effect="non-scaling-stroke" opacity=".55"/><line x1="${a[0]}" y1="${a[1]}" x2="${d[0]}" y2="${d[1]}" stroke="var(--seal)" stroke-width="1.4" stroke-dasharray="5 4" vector-effect="non-scaling-stroke" opacity=".6"/>`;
+  const [a,b,c,d,e]=[p,...tp,nh].map(pt);
+  $('#lines').innerHTML=`<polygon points="${a} ${b} ${c}" fill="none" stroke="var(--accent)" stroke-width="1.4" vector-effect="non-scaling-stroke" opacity=".55"/><line x1="${a[0]}" y1="${a[1]}" x2="${d[0]}" y2="${d[1]}" stroke="var(--seal)" stroke-width="1.4" stroke-dasharray="5 4" vector-effect="non-scaling-stroke" opacity=".6"/><line x1="${a[0]}" y1="${a[1]}" x2="${e[0]}" y2="${e[1]}" stroke="var(--gold)" stroke-width="2" stroke-dasharray="1.5 4" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity=".85"/>`;
 }
 function selectTab(t){document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));document.querySelectorAll('.tabpane').forEach(x=>x.hidden=x.id!=='tab-'+t);}
 document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>selectTab(b.dataset.tab)));
@@ -703,7 +837,11 @@ function renderTong(){
    <h4 class="sec">Mệnh, Thân, Cục</h4>
    <ul class="items">${core.map(x=>`<li>${pill(x.k)}<span><b>${x.t}.</b> ${x.txt}</span></li>`).join('')}</ul>
    <h4 class="sec">Cách cục nhận diện</h4>
-   ${cc.length?`<ul class="items">${cc.map(x=>`<li>${pill(x.k)}<span><b>${x.t}.</b> ${x.txt}</span></li>`).join('')}</ul>`:'<p class="hint">Không có cách cục đặc biệt; luận theo từng cung.</p>'}`;
+   ${cc.length?`<ul class="items">${cc.map(x=>`<li>${pill(x.k)}<span><b>${x.t}.</b> ${x.txt}</span></li>`).join('')}</ul>`:'<p class="hint">Không có cách cục đặc biệt; luận theo từng cung.</p>'}
+   <h4 class="sec">Tứ Hóa bản mệnh (năm ${CAN[ch.yc]})</h4>
+   <ul class="lines">${tuHoa(ch).map(l=>`<li>${l}</li>`).join('')}</ul>
+   <h4 class="sec">Kẹp cung trong lá số</h4>
+   ${(()=>{const G=allGiap(ch);return G.length?`<ul class="items">${G.map(({p,g})=>`<li>${pill(g[2]>0?'good':'bad')}<span><b>${ch.P[p].name} (${CHI[p]}) — ${g[3]}.</b> ${cap(g[4].replace('{cd}',CD[ch.P[p].name]))}.</span></li>`).join('')}</ul>`:'<p class="hint">Không có cung nào bị kẹp bởi cặp sao đáng kể.</p>';})()}`;
   $('#tab-tong').querySelectorAll('.bar').forEach(b=>b.addEventListener('click',()=>{SEL=+b.dataset.p;selectTab('cung');renderCung();highlight();}));
 }
 function renderCung(){
@@ -717,13 +855,13 @@ function renderCung(){
 }
 function renderHan(){
   const ch=CH, cur=YR.dh, sel=DHSEL||cur||ch.daihan[0];
-  const lines=analyzeDH(ch,sel), sc=ch.P[sel.p].score;
+  const lines=analyzeDH(ch,sel), sc=dhScore(ch,sel);
   $('#tab-han').innerHTML=`
    <h4 class="sec">Năm ${YR.Y}</h4>
    <div class="yearbar"><label for="vy" class="hint">Đổi năm xem</label><input id="vy" type="number" value="${YR.Y}" min="${ch.lunar[2]}" max="2150"><button class="btn ghost" id="vyGo" type="button">Xem năm này</button><span class="pill ${lvClass(YR.score)}">${label(YR.score)} · ${YR.score}/100</span></div>
    <ul class="lines">${YR.lines.map(l=>`<li>${l}</li>`).join('')}</ul>
    <h4 class="sec">Đại hạn 10 năm</h4>
-   <div class="dh-row">${ch.daihan.slice(0,10).map(d=>`<button data-k="${d.from}" class="${cur&&cur.from===d.from?'now':''}" aria-pressed="${sel.from===d.from}" style="border-bottom:3px solid ${fillColor(ch.P[d.p].score)}"><b>${d.from}–${d.to}</b>${ch.P[d.p].name}</button>`).join('')}</div>
+   <div class="dh-row">${ch.daihan.slice(0,10).map(d=>`<button data-k="${d.from}" class="${cur&&cur.from===d.from?'now':''}" aria-pressed="${sel.from===d.from}" style="border-bottom:3px solid ${fillColor(dhScore(ch,d))}"><b>${d.from}–${d.to}</b>${ch.P[d.p].name}</button>`).join('')}</div>
    <div class="verdict-head"><h3 style="font-size:20px">${sel.from}–${sel.to} tuổi${cur&&cur.from===sel.from?' (hiện tại)':''}</h3><span class="pill ${lvClass(sc)}">${label(sc)} · ${sc}/100</span></div>
    <ul class="lines">${lines.map(l=>`<li>${l}</li>`).join('')}</ul>`;
   $('#tab-han').querySelectorAll('.dh-row button').forEach(b=>b.addEventListener('click',()=>{DHSEL=ch.daihan.find(d=>d.from===+b.dataset.k);renderHan();}));
@@ -782,6 +920,8 @@ function fullReading(ch,yr){
   sec('Lời phán tổng quát',M.score,p(intro)+p(`Thầy nói thẳng: ${verdict}`)+p(`Đời ${esc(nm)} mạnh nhất ở ${strong.join(', ')}; yếu nhất ở ${weak.join(', ')} — đây là những mảng phải giữ gìn cả đời.`)+(goodCC.length?p(`Cách tốt trong lá số: ${goodCC.map(x=>x.t).join(', ')}.`):'')+(badCC.length?p(`Cách xấu cần biết: ${badCC.map(x=>x.t).join(', ')}.`):''));
   // 2. Mệnh Thân Cục
   sec('Mệnh – Thân – Cục',null,ul(core.map(x=>`<strong>${x.t}:</strong> ${x.txt.replace(x.t+': ','')}`))+ul(cc.map(x=>`<strong>${x.t}</strong> (${x.k==='good'?'tốt':x.k==='bad'?'xấu':'lưu ý'}): ${x.txt}`)));
+  const G=allGiap(ch);
+  sec('Tứ Hóa và kẹp cung',null,ul(tuHoa(ch))+(G.length?p('<strong>Các cung bị kẹp:</strong>')+ul(G.map(({p:q,g})=>`<strong>${P[q].name} — ${g[3]}:</strong> ${g[4].replace('{cd}',CD[P[q].name])}.`)):''));
   // 3. Tính cách
   const tr=[];chinhM.forEach(s=>tr.push(`${s.name} ${BR_NAME[s.bright]}${M.vcd?' (mượn từ Thiên Di)':''}: ${INFO[s.name].menh[isBright(s.bright)?0:1]}.`));
   const ex=[...new Set(M.stars.map(s=>TRAIT[s.name]).filter(Boolean))];
@@ -802,7 +942,7 @@ function fullReading(ch,yr){
   // 9. đại hạn
   const age=yr.age, idx=ch.daihan.findIndex(d=>age>=d.from&&age<=d.to);
   const list=(idx<0?ch.daihan.slice(0,3):ch.daihan.slice(idx,idx+3));
-  sec('Đại hạn hiện tại và hai đại hạn kế tiếp',null,list.map((d,i)=>`<h4>${i===0&&idx>=0?'Đang đi: ':''}${d.from}–${d.to} tuổi (${ch.lunar[2]+d.from-1}–${ch.lunar[2]+d.to-1}) · ${P[d.p].name} · ${label(P[d.p].score)}</h4>${ul(analyzeDH(ch,d).slice(1))}`).join(''));
+  sec('Đại hạn hiện tại và hai đại hạn kế tiếp',null,list.map((d,i)=>`<h4>${i===0&&idx>=0?'Đang đi: ':''}${d.from}–${d.to} tuổi (${ch.lunar[2]+d.from-1}–${ch.lunar[2]+d.to-1}) · ${P[d.p].name} · ${label(dhScore(ch,d))}</h4>${ul(analyzeDH(ch,d).slice(1))}`).join(''));
   // 10. năm
   const ms=monthsOf(ch,yr), mb=[...ms].sort((a,b)=>b.s-a.s);
   const mg=mb.slice(0,3).map(x=>`tháng ${x.i} (${P[x.p].name})`), mx=mb.slice(-3).reverse().map(x=>`tháng ${x.i} (${P[x.p].name})`);
