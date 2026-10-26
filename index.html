@@ -277,6 +277,16 @@ footer.site p{margin:0 0 6px;max-width:90ch}
   .vrow{grid-template-columns:repeat(3,1fr)}
   .ytable{font-size:12.5px}
 }
+.cmp{display:grid;gap:12px;margin-top:14px}
+.cmprow{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface)}
+.cmph{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.cmph b{font-family:var(--serif);font-size:17px}
+.cmpb{display:grid;grid-template-columns:56px 1fr auto;gap:8px;align-items:center;font-size:13px;margin:4px 0}
+.cmpb .track{display:block;height:9px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);overflow:hidden}
+.cmpb .fill{display:block;height:100%;border-radius:99px}
+.cmpl{color:var(--muted)}.cmpv{font-weight:600;font-size:12.5px;text-align:right;white-space:nowrap;min-width:104px}
+.cmpt{margin:8px 0 0;font-size:14px}
+@media (max-width:640px){.cmpb{grid-template-columns:44px 1fr auto;font-size:12px}.cmpv{font-size:11.5px;min-width:92px}.cmprow{padding:10px 12px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media print{.intake,.tabs,.ask,.mast p{display:none}}
 </style>
@@ -315,11 +325,13 @@ footer.site p{margin:0 0 6px;max-width:90ch}
           <button role="tab" aria-selected="false" data-tab="cung">Luận 12 cung</button>
           <button role="tab" aria-selected="false" data-tab="han">Vận hạn</button>
           <button role="tab" aria-selected="false" data-tab="ai">Thầy luận chi tiết</button>
+          <button role="tab" aria-selected="false" data-tab="dc">Đối chiếu Bát Tự</button>
         </div>
         <div class="tabpane" id="tab-tong"></div>
         <div class="tabpane" id="tab-cung" hidden></div>
         <div class="tabpane" id="tab-han" hidden></div>
         <div class="tabpane" id="tab-ai" hidden></div>
+        <div class="tabpane" id="tab-dc" hidden></div>
       </div>
     </div>
     <p class="note">Nội dung chỉ mang tính tham khảo. An sao theo Tử Vi Đẩu Số phái Việt Nam; một số sao phụ và độ sáng có khác biệt nhỏ giữa các trường phái. Điểm số là thang tham khảo do phần mềm tổng hợp từ sao tọa thủ và tam phương tứ chính.</p>
@@ -339,11 +351,13 @@ footer.site p{margin:0 0 6px;max-width:90ch}
         <button role="tab" aria-selected="false" data-bt="van">Đại vận</button>
         <button role="tab" aria-selected="false" data-bt="nam">Lưu niên</button>
         <button role="tab" aria-selected="false" data-bt="hop">Hợp xung · Thần sát</button>
+        <button role="tab" aria-selected="false" data-bt="dc">Đối chiếu Tử Vi</button>
       </div>
       <div class="tabpane" id="bt-luan"></div>
       <div class="tabpane" id="bt-van" hidden></div>
       <div class="tabpane" id="bt-nam" hidden></div>
       <div class="tabpane" id="bt-hop" hidden></div>
+      <div class="tabpane" id="bt-dc" hidden></div>
     </div>
     <p class="note">Nội dung chỉ mang tính tham khảo. Trụ năm và trụ tháng tính theo tiết khí (năm mới bắt đầu từ Lập Xuân), giờ chuẩn Việt Nam (UTC+7), chưa hiệu chỉnh giờ mặt trời thực theo kinh độ. Dụng thần xác định theo phép phù ức kết hợp điều hầu ở mức cơ bản.</p>
   </section>
@@ -356,6 +370,10 @@ footer.site p{margin:0 0 6px;max-width:90ch}
 <script>
 /* ===== Âm lịch (thuật toán Hồ Ngọc Đức, múi giờ +7) ===== */
 const INT=Math.floor, TZ=7;
+let CAL={"cung":[-6.165,-2.32,0.105,4.18,6.725,11.335],"bzLife":[17.78,32.68,38.9,47.7,54.2,66.9],"bzTai":[19.16,26.164,45.498,57.334,68.348,80.868],"bzCar":[37,47.467,52.222,68.444,76.733,81.333],"bzMar":[19.15,30.5,37.6,51.8,63.05,81.15],"bzKid":[31.6,40.089,44.689,55.711,64.533,79.089],"bzHealth":[10.664,35.52,45.16,57.344,62.404,64.352],"bzDv":[23,31.76,41.36,54.8,64.4,74],"dh":[11,35,48,63,76,96],"bzYear":[28.32,40.33,45.82,54.668,61.818,74.35],"tvYear":[17.85,36.4,46.6,61,71.25,91.4]};
+/* Hiệu chuẩn thang điểm: ánh xạ điểm thô sang thang chung (10% Xấu, 15% Kém, 35% Trung bình, 25% Tốt, 15% Rất tốt) */
+const CAL_Y=[10,35,48,62,75,95];
+function cal(k,x){const b=CAL[k];if(!b)return x;let y;if(x<=b[0])y=CAL_Y[0]-(b[0]-x)*0.5;else if(x>=b[5])y=CAL_Y[5]+(x-b[5])*0.3;else{for(let i=0;i<5;i++)if(x<=b[i+1]){const t=(x-b[i])/((b[i+1]-b[i])||1);y=CAL_Y[i]+t*(CAL_Y[i+1]-CAL_Y[i]);break;}}return Math.max(5,Math.min(97,Math.round(y)));}
 const mod=(a,n)=>((a%n)+n)%n;
 function jdFromDate(dd,mm,yy){const a=INT((14-mm)/12),y=yy+4800-a,m=mm+12*a-3;let jd=dd+INT((153*m+2)/5)+365*y+INT(y/4)-INT(y/100)+INT(y/400)-32045;if(jd<2299161)jd=dd+INT((153*m+2)/5)+365*y+INT(y/4)-32083;return jd;}
 function jdToDate(jd){let a,b,c;if(jd>2299160){a=jd+32044;b=INT((4*a+3)/146097);c=a-INT((b*146097)/4);}else{b=0;c=jd+32082;}const d=INT((4*c+3)/1461),e=c-INT((1461*d)/4),m=INT((5*e+2)/153);return[e-INT((153*m+2)/5)+1,m+3-12*INT(m/10),b*100+d-4800+INT(m/10)];}
@@ -510,7 +528,7 @@ function scoreAll(ch){
     if(has('Kình Dương')&&has('Đà La'))t-=0.4;
     if(has('Lộc Tồn')&&has('Hóa Lộc'))t+=0.8;
     if(tpOf(p).some(x=>{const n=P[x].stars.map(s=>s.name);return n.includes('Thiên Mã')&&(n.includes('Lộc Tồn')||n.includes('Hóa Lộc'));}))t+=0.6;
-    c.total=t; c.score=Math.max(5,Math.min(97,Math.round(48+t*4.5)));
+    c.total=t; c.score=CAL.cung?cal('cung',t):t;
   });
 }
 const label=s=>s>=75?'Rất tốt':s>=62?'Tốt':s>=48?'Trung bình':s>=35?'Kém':'Xấu';
@@ -716,7 +734,7 @@ function dhHoa(ch,d){
   if(H[3].p===ch.menh&&d.p!==ch.menh)adj-=3;
   return {can,H,adj};
 }
-function dhScore(ch,d){return Math.max(5,Math.min(97,ch.P[d.p].score+dhHoa(ch,d).adj));}
+function dhScore(ch,d){return cal('dh',ch.P[d.p].score+dhHoa(ch,d).adj);}
 function allGiap(ch){const R=[];for(let p=0;p<12;p++)giapOf(ch.P,p).forEach(g=>{if(g[0]==='Kình Dương'&&names(ch,p).includes('Lộc Tồn'))g=[g[0],g[1],g[2],'Lộc Tồn bị Kình Đà giáp','{cd} có lộc nhưng bị kìm hai bên, giữ của vất vả'];R.push({p,g});});return R;}
 function menhCore(ch){
   const R=[]; const bm=ch.banMenh[1], cu=ch.cucHanh;
@@ -793,7 +811,7 @@ function analyzeYear(ch,Y){
   out.push(`Tiểu hạn tọa ${thChinh.length?thChinh.map(x=>x.name+' '+brSpan(x)).join(', '):'vô chính diệu'}${thc.vcd?' (mượn cung xung)':''}.`);
   chieuLines(ch,thP,thc.name).forEach(l=>out.push(l));
   giapOf(ch.P,thP).forEach(g=>{s+=g[2]*3;out.push(`<span class="${g[2]>0?'tag-good':'tag-bad'}">${g[3]}</span> tiểu hạn: ${g[4].replace('{cd}','năm này')}.`);});
-  s=Math.max(5,Math.min(97,Math.round(s)));
+  s=cal('tvYear',s);
   out.push(`<b>Kết luận năm ${Y}: ${label(s)} (${s}/100).</b> `+['Năm thuận, nên hành động, mở rộng.','Năm bình, làm vừa sức, tránh liều.','Năm xấu, giữ thủ, tránh đầu tư lớn, ký kết và đi xa không cần thiết.'][level(s)]);
   return {Y,vc,vz,age,thP,dh,score:s,lines:out,luu:{loc:luuLoc,kinh:luuKinh,da:luuDa,ma:luuMa,hoa:luuHoa}};
 }
@@ -938,21 +956,21 @@ function dvScore(bz,c,z){
   let s=0.4*elVal(bz,SH[c])+0.6*elVal(bz,CHI_HANH[z]);
   let v=50+24*s; const dz=bz.P[2].z;
   if(mod(z-dz,12)===6)v-=5; if(nhiHop(z)===dz)v+=3; if(mod(z-bz.P[1].z,12)===6)v-=3;
-  return Math.max(5,Math.min(97,Math.round(v)));
+  return cal('bzDv',v);
 }
 const SS_TXT={'Thiên Ất Quý Nhân':'gặp nạn có người cứu, hay được quý nhân giúp','Văn Xương':'thông minh, học giỏi, thuận thi cử','Lộc Thần':'có lộc ăn, đời ít thiếu thốn','Dương Nhận':'cương mãnh, quyết đoán; đề phòng nóng nảy, thương tích','Đào Hoa':'có duyên, dễ được người khác giới để ý','Dịch Mã':'hay di chuyển, đổi chỗ làm, chỗ ở; hợp đi xa','Hoa Cái':'thông minh, thích tôn giáo, nghệ thuật; có phần cô độc','Không Vong':'việc của trụ này hay hụt hẫng, khó trọn vẹn'};
-function rateWord(s){return s>=70?'Rất tốt':s>=58?'Tốt':s>=45?'Trung bình':s>=33?'Kém':'Xấu';}
-function lvB(s){return s>=58?0:s>=45?1:2;}
+function rateWord(s){return label(s);}
+function lvB(s){return level(s);}
 function roleTxt(bz,e){return ROLE_NAME[bz.roles[e]];}
 function baziLife(bz){
   const P=bz.P, g=bz.gshare, sh=bz.share, male=bz.inp.gender==='nam';
   const dungShare=sh[bz.dung]+sh[bz.hy], ky=EL5.find(e=>bz.roles[e]==='ky');
   let score=50+ (dungShare-0.3)*60 - Math.abs(bz.st-0.45)*40 - bz.rel.filter(r=>r.k==='bad').length*2.5 + bz.rel.filter(r=>r.k==='good').length*1.5 + bz.shensha.flat().filter(x=>['Thiên Ất Quý Nhân','Văn Xương','Lộc Thần'].includes(x)).length*2;
-  return Math.max(10,Math.min(95,Math.round(score)));
+  return cal('bzLife',score);
 }
 function baziReading(bz){
   const P=bz.P, sh=bz.share, g=bz.gshare, male=bz.inp.gender==='nam', S=[];
-  const sec=(t,s,body)=>S.push({t,s,body});
+  const sec=(t,s,body,id)=>S.push({t,s,body,id});
   const pct=x=>Math.round(x*100)+'%';
   const nc=NHATCHU[bz.dm], life=baziLife(bz);
   const ky=EL5.find(e=>bz.roles[e]==='ky');
@@ -960,7 +978,7 @@ function baziReading(bz){
   sec('Lời phán tổng quát',life,[
     `Nhật chủ ${nc[0]} (hình tượng ${nc[1]}), sinh tháng ${CHI[P[1].z]} — Nhật chủ ở thế <b>${bz.status}</b>, thân <b>${bz.strength}</b> (lực đỡ ${pct(bz.support)}).`,
     `Dụng thần là <b>${bz.dung}</b>, hỷ thần <b>${bz.hy}</b>; kỵ thần <b>${ky}</b>. Vận nào gặp ${bz.dung}, ${bz.hy} thì lên; gặp ${ky} thì phải giữ mình.`,
-    life>=58?'Thầy nói thẳng: bát tự có lực, ngũ hành tương đối cân, gặp vận tốt là bật lên được.':life>=45?'Thầy nói thẳng: bát tự trung bình, có điểm mạnh rõ nhưng cũng có chỗ thiếu, thành bại phụ thuộc vào đại vận và lựa chọn nghề.':'Thầy nói thẳng: bát tự lệch, ngũ hành mất cân bằng, đời nhiều vất vả; phải chọn đúng nghề, đúng hướng theo dụng thần mới bù được.'
+    level(life)===0?'Thầy nói thẳng: bát tự có lực, ngũ hành tương đối cân, gặp vận tốt là bật lên được.':level(life)===1?'Thầy nói thẳng: bát tự trung bình, có điểm mạnh rõ nhưng cũng có chỗ thiếu, thành bại phụ thuộc vào đại vận và lựa chọn nghề.':'Thầy nói thẳng: bát tự lệch, ngũ hành mất cân bằng, đời nhiều vất vả; phải chọn đúng nghề, đúng hướng theo dụng thần mới bù được.'
   ]);
   // Tính cách
   const top=GROUPS.slice().sort((a,b)=>g[b]-g[a]), low=GROUPS.filter(x=>g[x]<0.08);
@@ -982,7 +1000,7 @@ function baziReading(bz){
   else{taiS=52;taiL.push('Tài tinh vừa phải: tiền đủ dùng, giàu chậm và chắc; khá lên rõ khi vào vận dụng thần.');}
   if(tk>=0.3&&tai>0.05){taiS-=8;taiL.push('Tỷ Kiếp đoạt Tài: hay hao vì bạn bè, anh em; tuyệt đối tránh hùn hạp, bảo lãnh.');}
   taiL.push(`Tài tinh (${bz.Wl}) là ${roleTxt(bz,bz.Wl).toLowerCase()} của lá số — ${['dung','hy'].includes(bz.roles[bz.Wl])?'tiền đến là có lợi cho mình':['ky','cuu'].includes(bz.roles[bz.Wl])?'tham tiền dễ chuốc họa, nên kiếm vừa sức':'tiền bạc trung tính'}.`);
-  sec('Tài lộc',Math.max(10,Math.min(95,taiS+(['dung','hy'].includes(bz.roles[bz.Wl])?6:['ky','cuu'].includes(bz.roles[bz.Wl])?-6:0))),taiL);
+  sec('Tài lộc',cal('bzTai',taiS+7*ROLE_VAL[bz.roles[bz.Wl]]+(bz.strength==='nhược'?-20:25)*(tai-0.15)+12*(g['Thực Thương']-0.15)),taiL,'tai');
   // Sự nghiệp
   const quan=g['Quan Sát'], an=g['Ấn'], car=[];let cS=50;
   if(quan>=0.12&&an>=0.12){cS=68;car.push('Quan Ấn tương sinh: hợp nhà nước, quản lý, giáo dục; có đường thăng tiến bài bản.');}
@@ -991,7 +1009,7 @@ function baziReading(bz){
   if(quan<0.06){car.push('Quan tinh yếu: không hợp leo thang chức vụ; hợp tự làm chủ hoặc chuyên môn.');cS-=4;}
   if(bz.TG['Thất Sát']>1.2&&!(bz.TG['Thực Thần']>0.5)&&bz.strength==='nhược'){cS-=10;car.push('Thất Sát nặng không chế, thân lại nhược: áp lực công việc lớn, dễ gặp sếp khắc nghiệt hoặc tiểu nhân.');}
   car.push(`Ngành hợp theo dụng thần ${bz.dung}: ${ELINFO[bz.dung].job}. Hỷ thần ${bz.hy}: ${ELINFO[bz.hy].job}.`);
-  sec('Sự nghiệp',Math.max(10,Math.min(95,cS)),car);
+  sec('Sự nghiệp',cal('bzCar',cS+6*ROLE_VAL[bz.roles[bz.Q]]+3*ROLE_VAL[bz.roles[bz.O]]+20*(quan+an-0.25)),car,'car');
   // Hôn nhân
   const dz=P[2].z, dmain=TANG[dz][0], dtg=tenGod(bz.dm,dmain), mar=[];let mS=55;
   const SP={'Tỷ Kiếp':'vợ/chồng cá tính mạnh, hay tranh phần quyết định; dễ có người thứ ba chen vào','Thực Thương':male?'vợ vui vẻ, có tài, chiều con':'người chồng bị mình chê nhiều, dễ bất mãn trong hôn nhân','Tài':male?'vợ đảm đang, giúp kinh tế':'thực tế, biết lo kinh tế gia đình, chồng chiều','Quan Sát':male?'vợ có cá tính, hay quản mình':'chồng có địa vị hoặc nghiêm khắc, kiểm soát','Ấn':'người phối ngẫu chu đáo, chăm lo như cha mẹ; đôi khi thiếu lửa'};
@@ -1009,7 +1027,7 @@ function baziReading(bz){
   if(male&&sp[0]>0.6&&sp[1]>0.6){mS-=4;mar.push('Chính Tài và Thiên Tài cùng hiện: đào hoa, dễ vướng nhiều mối tình.');}
   if(male&&tk>=0.3&&sp[0]+sp[1]>0.3){mS-=6;mar.push('Tỷ Kiếp tranh Tài: có người tranh vợ hoặc vợ chồng hay bất đồng vì tiền.');}
   if(bz.shensha.flat().includes('Đào Hoa')){mar.push('Có Đào Hoa: duyên tốt, được để ý; cẩn thận đào hoa ngoài luồng sau khi cưới.');}
-  sec('Hôn nhân, tình duyên',Math.max(10,Math.min(95,mS)),mar);
+  sec('Hôn nhân, tình duyên',cal('bzMar',mS+6*ROLE_VAL[bz.roles[male?bz.Wl:bz.Q]]+3*ROLE_VAL[bz.roles[CHI_HANH[dz]]]+10*(sp[0]-sp[1]*0.5)/2),mar,'mar');
   // Con cái
   const chil=male?g['Quan Sát']:g['Thực Thương'], hr=P[3], ch=[];let kS=52;
   ch.push(`${male?'Quan Sát (sao con của nam)':'Thực Thương (sao con của nữ)'} chiếm ${pct(chil)}: ${chil>=0.15?'đường con cái rõ, dễ có con':chil<0.06?'đường con muộn hoặc ít con':'đường con bình thường'}.`);
@@ -1018,14 +1036,14 @@ function baziReading(bz){
   else if(hrRole<-0.3){kS-=12;ch.push(`Trụ giờ ${CAN[hr.c]} ${CHI[hr.z]} là hành kỵ: con cái khó dạy hoặc ít hợp, hậu vận phải tự lo.`);}
   else ch.push(`Trụ giờ ${CAN[hr.c]} ${CHI[hr.z]} trung tính: con cái bình thường.`);
   if(chil>=0.15)kS+=5;if(chil<0.06)kS-=6;
-  sec('Con cái, hậu vận',Math.max(10,Math.min(95,kS)),ch);
+  sec('Con cái, hậu vận',cal('bzKid',kS+6*ROLE_VAL[bz.roles[male?bz.Q:bz.O]]+20*(chil-0.12)),ch,'kid');
   // Sức khỏe
   const he=[];let hS=60;
   EL5.forEach(e=>{if(sh[e]<0.06){hS-=7;he.push(`Thiếu hành ${e} (${pct(sh[e])}): ${ELINFO[e].organ} là điểm yếu bẩm sinh.`);}
     if(sh[e]>0.35){hS-=7;he.push(`Hành ${e} quá vượng (${pct(sh[e])}): ${ELINFO[e].organ} dễ quá tải; hành bị nó khắc là ${KHAC[e]} (${ELINFO[KHAC[e]].organ}) cũng chịu ảnh hưởng.`);}});
   if(!he.length)he.push('Ngũ hành không lệch quá mức: nền sức khỏe tương đối ổn.');
   he.push(`Hành kỵ ${ky}: chú ý ${ELINFO[ky].organ} vào những năm, vận gặp ${ky}. Nên khám định kỳ.`);
-  sec('Sức khỏe',Math.max(10,Math.min(95,hS)),he);
+  sec('Sức khỏe',cal('bzHealth',62-110*EL5.reduce((a,e)=>a+Math.max(0,0.07-sh[e])+Math.max(0,sh[e]-0.33),0)-15*Math.max(0,sh[ky]-0.2)+8*(0.3-Math.abs(bz.st-0.45))),he,'health');
   // Tứ trụ theo giai đoạn
   sec('Tứ trụ theo giai đoạn đời',null,P.map((p,i)=>{const v=(ROLE_VAL[bz.roles[SH[p.c]]]+ROLE_VAL[bz.roles[CHI_HANH[p.z]]])/2;return `<b>Trụ ${p.k}</b> ${CAN[p.c]} ${CHI[p.z]} (${PILLAR_STAGE[i]}): ${v>0.3?'hỷ dụng — giai đoạn này thuận, được nâng đỡ':v<-0.3?'kỵ thần — giai đoạn này vất vả, nhiều trở ngại':'lẫn lộn — có thuận có nghịch'}.`;}));
   // Cải vận
@@ -1050,7 +1068,7 @@ function baziYear(bz,Y){
   if(z===KHOI[bz.dm]||z===VIET[bz.dm]){s+=4;L.push('<span class="tag-good">Tốt</span> Năm gặp Thiên Ất Quý Nhân: gặp khó có người giúp.');}
   if(DUONGNHAN[bz.dm]===z){s-=3;L.push('Năm gặp Dương Nhận: nóng nảy, đề phòng thương tích, tranh chấp.');}
   if(dv){s=s*0.65+dv.score*0.35;L.push(`Đang đi đại vận ${CAN[dv.c]} ${CHI[dv.z]} (${dv.year}–${dv.year+9}) — ${rateWord(dv.score)}.`);}
-  s=Math.max(5,Math.min(97,Math.round(s)));
+  s=cal('bzYear',s);
   L.push(`<b>Kết luận năm ${Y}: ${rateWord(s)} (${s}/100).</b> `+['Năm thuận, nên chủ động.','Năm bình, làm vừa sức.','Năm xấu, giữ thủ, tránh quyết định lớn.'][lvB(s)]);
   return {Y,c,z,tg,score:s,lines:L,dv};
 }
@@ -1065,6 +1083,25 @@ function dvText(bz,d){
   if(mod(d.z-bz.P[1].z,12)===6)L.push('Vận xung trụ tháng: thay đổi nghề nghiệp, môi trường làm việc.');
   L.push(`<b>Đánh giá: ${rateWord(d.score)} (${d.score}/100).</b> `+['Vận thuận — nên mở rộng, đầu tư, nhận trách nhiệm lớn.','Vận bình — giữ vững là thắng.','Vận nghịch — thu mình, giữ tiền, giữ sức khỏe.'][lvB(d.score)]);
   return L;
+}
+
+const BZ_VERDICT={tai:['Tài lộc tốt: có khả năng kiếm và giữ tiền, gặp vận dụng thần thì giàu lên rõ.','Tài lộc trung bình: đủ dùng, muốn khá phải đi đúng ngành và tiết kiệm có kỷ luật.','Tài lộc yếu: tiền khó giữ, dễ hao; tránh đầu cơ, vay mượn, hùn hạp.'],car:['Sự nghiệp thuận: có đường thăng tiến, làm đúng ngành hợp dụng thần thì lên nhanh.','Sự nghiệp bình: ổn định ở mức vừa, cần bền bỉ và chọn đúng môi trường.','Sự nghiệp trắc trở: hay đổi việc, áp lực lớn; nên theo chuyên môn hơn là leo chức.'],mar:['Hôn nhân thuận: phối ngẫu hợp và giúp được mình.','Hôn nhân có lúc trục trặc nhưng giữ được nếu biết nhường.','Hôn nhân trắc trở: dễ muộn, xung khắc, biến động; nên cưới muộn và chọn người kỹ.'],kid:['Con cái tốt, có hiếu, hậu vận được nhờ.','Con cái bình thường, hậu vận tự lo là chính.','Đường con cái khó, hậu vận cần tự chuẩn bị chu đáo.'],health:['Sức khỏe nền tốt, ít bệnh lớn.','Sức khỏe trung bình, có bộ phận yếu cần giữ.','Sức khỏe là điểm yếu: cần khám định kỳ và sống điều độ.']};
+const DIFF={life:['Tử Vi cho thấy tố chất và hoàn cảnh tốt, nhưng ngũ hành Bát Tự lệch: có nền tảng mà dễ tự làm hỏng, thành bại tùy vận.','Bát Tự cân bằng nhưng cung Mệnh Tử Vi thấp hơn: năng lực bên trong tốt mà môi trường, cơ hội ít; phải chủ động tìm chỗ đứng.'],tai:['Tử Vi thấy cơ hội tiền bạc tốt, Bát Tự thấy khả năng giữ tiền kém: tiền đến được nhưng khó giữ, phải kỷ luật chi tiêu.','Bát Tự cho thấy năng lực kiếm và giữ tiền tốt, nhưng cung Tài Bạch Tử Vi thấp hơn: tiền phải tự tay làm ra, ít lộc trời cho.'],car:['Tử Vi thấy vị trí, cơ hội nghề nghiệp tốt, Bát Tự thấy sức gánh chưa mạnh: dễ được giao việc lớn nhưng vất vả giữ.','Bát Tự có năng lực sự nghiệp tốt, nhưng cung Quan Lộc Tử Vi thấp hơn: có tài mà ít gặp thời; nên chọn môi trường kỹ.'],mar:['Tử Vi thấy người phối ngẫu tốt, Bát Tự thấy cung phu thê có xung khắc: chọn được người tốt nhưng hai người hay va chạm, cần nhường nhịn.','Bát Tự thấy hôn nhân hợp, nhưng cung Phu Thê Tử Vi thấp hơn: tình cảm thật lòng nhưng hoàn cảnh hay gây trở ngại.'],kid:['Tử Vi thấy con cái tốt, Bát Tự thấy sao con và trụ giờ yếu: con ngoan nhưng có thể muộn hoặc ít.','Bát Tự thấy hậu vận tốt, Tử Vi thấy cung Tử Tức yếu: có con nhưng giai đoạn đầu nuôi dạy vất vả.'],health:['Tử Vi thấy ít bệnh, Bát Tự thấy ngũ hành lệch: nền tốt nhưng các bộ phận theo hành thiếu hoặc thừa vẫn phải giữ.','Bát Tự thấy ngũ hành cân, Tử Vi thấy cung Tật Ách thấp hơn: đề phòng tai nạn, bệnh bất ngờ hơn là bệnh mãn tính.'],van:['Đại hạn Tử Vi tốt nhưng đại vận Bát Tự kém hơn: cơ hội bên ngoài nhiều nhưng bản thân dễ quá sức; làm vừa phải.','Đại vận Bát Tự thuận nhưng đại hạn Tử Vi kém hơn: sức mình đang mạnh mà hoàn cảnh cản; kiên trì sẽ qua.'],nam:['Tiểu hạn Tử Vi tốt, lưu niên Bát Tự kém hơn: có việc tốt đến nhưng sức khỏe, tinh thần dễ hao.','Lưu niên Bát Tự tốt, tiểu hạn Tử Vi kém hơn: bản thân thuận nhưng hay gặp chuyện ngoài ý muốn.']};
+function compareData(ch,bz,Y){
+  const r=baziReading(bz), get=id=>{const s=r.S.find(x=>x.id===id);return s?s.s:null;};
+  const cp=n=>ch.P.find(p=>p.name===n).score;
+  const age=ageAt(ch,Y), dh=currentDH(ch,age), dv=bz.dv.find(d=>Y>=d.year&&Y<d.year+10);
+  const rows=[
+    {id:'life',k:'Tổng quan',tv:cp('Mệnh'),bz:r.life,tvS:'cung Mệnh',bzS:'tổng quan bát tự'},
+    {id:'tai',k:'Tài lộc',tv:cp('Tài Bạch'),bz:get('tai'),tvS:'cung Tài Bạch',bzS:'Tài tinh và sức Nhật chủ'},
+    {id:'car',k:'Sự nghiệp',tv:cp('Quan Lộc'),bz:get('car'),tvS:'cung Quan Lộc',bzS:'Quan tinh, Ấn, Thực Thương'},
+    {id:'mar',k:'Hôn nhân',tv:cp('Phu Thê'),bz:get('mar'),tvS:'cung Phu Thê',bzS:'cung phu thê (chi ngày), sao phối ngẫu'},
+    {id:'kid',k:'Con cái',tv:cp('Tử Tức'),bz:get('kid'),tvS:'cung Tử Tức',bzS:'sao con, trụ giờ'},
+    {id:'health',k:'Sức khỏe',tv:cp('Tật Ách'),bz:get('health'),tvS:'cung Tật Ách',bzS:'cân bằng ngũ hành'}];
+  if(dh&&dv)rows.push({id:'van',k:'Vận 10 năm hiện tại',tv:dhScore(ch,dh),bz:dv.score,tvS:`đại hạn ${ch.P[dh.p].name} (${dh.from}–${dh.to} tuổi)`,bzS:`đại vận ${CAN[dv.c]} ${CHI[dv.z]} (${dv.year}–${dv.year+9})`});
+  rows.push({id:'nam',k:`Năm ${Y}`,tv:analyzeYear(ch,Y).score,bz:baziYear(bz,Y).score,tvS:'tiểu hạn và lưu tinh',bzS:'lưu niên'});
+  rows.forEach(x=>{const d=Math.abs(x.tv-x.bz);x.agree=d<=12&&level(x.tv)===level(x.bz)?'same':d<=25&&Math.abs(level(x.tv)-level(x.bz))<2?'close':'diff';x.avg=Math.round((x.tv+x.bz)/2);});
+  return rows;
 }
 /* ===== Giao diện ===== */
 const $=s=>document.querySelector(s);
@@ -1104,7 +1141,7 @@ $('#intake').addEventListener('submit',e=>{
   CH.viewYear=vy; SEL=CH.menh; DHSEL=null; AI.reset();
   YR=analyzeYear(CH,vy);
   renderAll();
-  BZ=buildBazi({name:$('#fName').value.trim(),gender:g,jd,hour:h,minute:mi,inputText}); BZSEL=null; BZY=vy; renderBazi();
+  BZ=buildBazi({name:$('#fName').value.trim(),gender:g,jd,hour:h,minute:mi,inputText}); BZSEL=null; BZY=vy; renderBazi(); renderCompare();
   const tgt=MODE==='battu'?$('#bt-result'):$('#result');
   $('#result').hidden=MODE!=='tuvi'; $('#bt-result').hidden=MODE!=='battu';
   tgt.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
@@ -1202,7 +1239,7 @@ function renderHan(){
    <div class="verdict-head"><h3 style="font-size:20px">${sel.from}–${sel.to} tuổi${cur&&cur.from===sel.from?' (hiện tại)':''}</h3><span class="pill ${lvClass(sc)}">${label(sc)} · ${sc}/100</span></div>
    <ul class="lines">${lines.map(l=>`<li>${l}</li>`).join('')}</ul>`;
   $('#tab-han').querySelectorAll('.dh-row button').forEach(b=>b.addEventListener('click',()=>{DHSEL=ch.daihan.find(d=>d.from===+b.dataset.k);renderHan();}));
-  const go=()=>{let v=+$('#vy').value;if(!v||v<ch.lunar[2])return;CH.viewYear=v;YR=analyzeYear(CH,v);DHSEL=null;AI.reset();renderChart();renderTong();renderHan();AI.render();};
+  const go=()=>{let v=+$('#vy').value;if(!v||v<ch.lunar[2])return;CH.viewYear=v;YR=analyzeYear(CH,v);DHSEL=null;AI.reset();renderChart();renderTong();renderHan();AI.render();renderCompare();};
   $('#vyGo').addEventListener('click',go);$('#vy').addEventListener('keydown',e=>{if(e.key==='Enter')go();});
 }
 /* ===== Thầy luận (miễn phí, chạy ngay trên trang) ===== */
@@ -1390,7 +1427,7 @@ function renderBazi(){
 }
 function renderBtLuan(){
   const r=baziReading(BZ);
-  $('#bt-luan').innerHTML=r.S.map(s=>`<div class="bt-sec"><h3>${s.t}${s.s!=null?` <span class="pill ${'lv'+lvB(s.s)}">${rateWord(s.s)} · ${s.s}/100</span>`:''}</h3><ul class="lines">${s.body.map(l=>`<li>${l}</li>`).join('')}</ul></div>`).join('');
+  $('#bt-luan').innerHTML=r.S.map(s=>`<div class="bt-sec"><h3>${s.t}${s.s!=null?` <span class="pill ${'lv'+lvB(s.s)}">${rateWord(s.s)} · ${s.s}/100</span>`:''}</h3><ul class="lines">${s.body.map(l=>`<li>${l}</li>`).join('')}</ul>${s.id&&BZ_VERDICT[s.id]?`<div class="final ${'lv'+lvB(s.s)}">${BZ_VERDICT[s.id][lvB(s.s)]}</div>`:''}</div>`).join('');
 }
 function renderBtVan(){
   const bz=BZ, cur=bz.dv.find(d=>BZY>=d.year&&BZY<d.year+10), sel=BZSEL||cur||bz.dv[0];
@@ -1406,7 +1443,7 @@ function renderBtNam(){
   $('#bt-nam').innerHTML=`<div class="yearbar"><label for="btYear" class="hint">Năm xem</label><input id="btYear" type="number" value="${Y}" min="${bz.sy}" max="2150"><button class="btn ghost" type="button" id="btYearGo">Xem năm này</button><span class="pill ${'lv'+lvB(yr.score)}">${rateWord(yr.score)} · ${yr.score}/100</span></div>
    <ul class="lines">${yr.lines.map(l=>`<li>${l}</li>`).join('')}</ul>
    <h4 class="sec">10 năm tới</h4><div style="overflow-x:auto"><table class="ytable"><thead><tr><th>Năm</th><th>Can chi</th><th>Thập thần</th><th>Đánh giá</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
-  const go=v=>{v=+v;if(!v||v<bz.sy)return;BZY=v;renderBtNam();renderBtVan();};
+  const go=v=>{v=+v;if(!v||v<bz.sy)return;BZY=v;renderBtNam();renderBtVan();renderCompare();};
   $('#btYearGo').onclick=()=>go($('#btYear').value); $('#btYear').onkeydown=e=>{if(e.key==='Enter')go(e.target.value);};
   $('#bt-nam').querySelectorAll('.ytable button').forEach(b=>b.onclick=()=>go(b.dataset.y));
 }
@@ -1416,5 +1453,20 @@ function renderBtHop(){
   $('#bt-hop').innerHTML=`<h4 class="sec">Hợp – xung – hình – hại</h4>${R.length?`<ul class="items">${R.map(r=>`<li><span class="pill ${r.k==='good'?'lv0':r.k==='bad'?'lv2':'lv1'}">${r.k==='good'?'Hợp':r.k==='bad'?'Xung/Hình':'Hội cục'}</span><span><b>${r.t}.</b> ${r.x}${r.el?` Hành ${r.el} là ${ROLE_NAME[bz.roles[r.el]].toLowerCase()} nên ${['dung','hy'].includes(bz.roles[r.el])?'có lợi':['ky','cuu'].includes(bz.roles[r.el])?'bất lợi':'trung tính'}.`:''}</span></li>`).join('')}</ul>`:'<p class="hint">Tứ trụ không có hợp xung hình hại đáng kể — cục diện yên ổn.</p>'}
    <h4 class="sec">Thần sát</h4>${ss.length?`<ul class="lines">${ss.map(x=>`<li>${x}</li>`).join('')}</ul>`:'<p class="hint">Không có thần sát chính.</p>'}`;
 }
-document.querySelectorAll('#btTabs button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#btTabs button').forEach(x=>x.setAttribute('aria-selected',x===b));['luan','van','nam','hop'].forEach(k=>$('#bt-'+k).hidden=k!==b.dataset.bt);}));
+document.querySelectorAll('#btTabs button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#btTabs button').forEach(x=>x.setAttribute('aria-selected',x===b));['luan','van','nam','hop','dc'].forEach(k=>$('#bt-'+k).hidden=k!==b.dataset.bt);}));
+
+function compareHTML(Y){
+  const ch=CH, bz=BZ, rows=compareData(ch,bz,Y);
+  const same=rows.filter(r=>r.agree==='same').length, diff=rows.filter(r=>r.agree==='diff').length;
+  const overall=Math.round(rows.reduce((a,r)=>a+r.avg,0)/rows.length);
+  const lunarM=`${CAN[ch.monthCan]} ${CHI[ch.monthChi]} (tháng ${ch.lunar[1]}${ch.lunar[3]?' nhuận':''} âm lịch)`, solarM=`${CAN[bz.P[1].c]} ${CHI[bz.P[1].z]} (tiết ${TERM_NAME[bz.mIdx]})`;
+  const yearDiff=ch.yc!==bz.P[0].c||ch.yz!==bz.P[0].z;
+  const bar=(s,lab)=>`<div class="cmpb"><span class="cmpl">${lab}</span><span class="track"><span class="fill" style="width:${s}%;background:${fillColor2(s)}"></span></span><span class="cmpv" style="color:${fillColor2(s)}">${s} · ${label(s)}</span></div>`;
+  return `<p class="lede">Hai môn cùng kết luận ${same}/${rows.length} mảng${diff?`, lệch rõ ${diff} mảng`:''}. Kết hợp cả hai: <b>${label(overall)}</b> (${overall}/100).</p>
+   <p class="hint">Tử Vi an sao theo âm lịch, tháng sinh là ${lunarM}; Bát Tự tính theo tiết khí, tháng sinh là ${solarM}.${yearDiff?` Năm sinh cũng khác: Tử Vi tính từ Tết là ${CAN[ch.yc]} ${CHI[ch.yz]}, Bát Tự tính từ Lập Xuân là ${CAN[bz.P[0].c]} ${CHI[bz.P[0].z]}.`:''} Vì dữ liệu và phương pháp khác nhau nên hai môn có thể lệch ở vài mảng; mảng nào hai môn cùng kết luận thì độ tin cậy cao hơn.</p>
+   <div class="cmp">${rows.map(r=>`<div class="cmprow"><div class="cmph"><b>${r.k}</b><span class="pill ${r.agree==='same'?'lv0':r.agree==='close'?'lv1':'lv2'}">${r.agree==='same'?'Cùng kết luận':r.agree==='close'?'Gần nhau':'Lệch nhau'}</span></div>
+     ${bar(r.tv,'Tử Vi')}${bar(r.bz,'Bát Tự')}
+     <p class="cmpt">${r.agree==='same'?`Cả ${r.tvS} (Tử Vi) và ${r.bzS} (Bát Tự) đều nghiêng về <b>${label(r.avg)}</b> — kết luận này đáng tin.`:r.agree==='close'?`Hai môn chênh nhau không nhiều (${Math.abs(r.tv-r.bz)} điểm); kết hợp lại nghiêng về <b>${label(r.avg)}</b>.`:DIFF[r.id][r.tv>r.bz?0:1]+` Kết hợp lại: <b>${label(r.avg)}</b>.`}</p></div>`).join('')}</div>`;
+}
+function renderCompare(){if(!CH||!BZ)return;const a=document.getElementById('tab-dc'),b=document.getElementById('bt-dc');if(a)a.innerHTML=compareHTML(YR.Y);if(b)b.innerHTML=compareHTML(BZY);}
 </script></body></html>
